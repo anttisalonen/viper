@@ -4,13 +4,24 @@
 #include <Ogre.h>
 #include <OIS.h>
 
-class App {
+#define APP_RESOURCE_NAME "Resources"
+
+class App : public OIS::KeyListener, public OIS::MouseListener {
 	public:
 		App();
 		~App();
 		void go();
+		bool keyPressed(const OIS::KeyEvent &arg);
+		bool keyReleased(const OIS::KeyEvent &arg);
+		bool mouseMoved(const OIS::MouseEvent& arg);
+		bool mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID button);
+		bool mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID button);
 
 	private:
+		void initResources();
+		void initInput();
+		bool checkWindowResize();
+
 		Ogre::Root* mRoot = nullptr;
 		Ogre::RenderWindow* mWindow = nullptr;
 		Ogre::SceneManager* mScene = nullptr;
@@ -20,9 +31,9 @@ class App {
 		Ogre::Viewport* mViewport = nullptr;
 		Ogre::RaySceneQuery* mRaySceneQuery = nullptr;
 
-		//OIS::InputManager* mInputManager = nullptr;
-		//OIS::Keyboard* mKeyboard = nullptr;
-		//OIS::Mouse* mMouse = nullptr;
+		OIS::InputManager* mInputManager = nullptr;
+		OIS::Keyboard* mKeyboard = nullptr;
+		OIS::Mouse* mMouse = nullptr;
 
 		bool mRunning = false;
 		unsigned int mWindowWidth = 0;
@@ -69,13 +80,65 @@ App::App()
 
 		mRaySceneQuery = mScene->createRayQuery(Ogre::Ray());
 
-		//initResources();
+		initResources();
 
-		//initInput();
-		//checkWindowResize();
+		initInput();
+		checkWindowResize();
 
 		mRunning = true;
 	}
+}
+
+void App::initResources()
+{
+	Ogre::ResourceGroupManager::getSingleton().createResourceGroup(APP_RESOURCE_NAME);
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share", "FileSystem", APP_RESOURCE_NAME, false);
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(APP_RESOURCE_NAME);
+	Ogre::ResourceGroupManager::getSingleton().loadResourceGroup(APP_RESOURCE_NAME);
+}
+
+void App::initInput()
+{
+	size_t hWnd = 0;
+	mWindow->getCustomAttribute("WINDOW", &hWnd);
+	OIS::ParamList pl;
+	std::ostringstream windowHndStr;
+
+	windowHndStr << hWnd;
+	pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
+#if defined OIS_WIN32_PLATFORM
+	pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
+	pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_NONEXCLUSIVE")));
+	pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
+	pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
+#elif defined OIS_LINUX_PLATFORM
+	pl.insert(std::make_pair(std::string("x11_mouse_grab"), std::string("false")));
+	pl.insert(std::make_pair(std::string("x11_mouse_hide"), std::string("false")));
+	pl.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string("false")));
+	pl.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
+#endif
+	mInputManager = OIS::InputManager::createInputSystem(pl);
+	mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject(OIS::OISKeyboard, true));
+	mKeyboard->setEventCallback(this);
+	mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject(OIS::OISMouse, true));
+	mMouse->setEventCallback(this);
+}
+
+bool App::checkWindowResize()
+{
+	unsigned int mOldWidth, mOldHeight;
+	mOldWidth = mWindowWidth;
+	mOldHeight = mWindowHeight;
+	mWindowWidth = mWindow->getWidth();
+	mWindowHeight = mWindow->getHeight();
+	if(mWindowWidth != mOldWidth || mWindowHeight != mOldHeight) {
+		mMouse->getMouseState().width = mWindowWidth;
+		mMouse->getMouseState().height = mWindowHeight;
+		mCamera->setAspectRatio(float(mViewport->getActualWidth()) / float(mViewport->getActualHeight()));
+		std::cout << "New window size: " << mWindowWidth << " x " << mWindowHeight << "\n";
+		return true;
+	}
+	return false;
 }
 
 App::~App()
@@ -86,6 +149,32 @@ App::~App()
 void App::go()
 {
 }
+
+bool App::keyPressed(const OIS::KeyEvent &arg)
+{
+	return true;
+}
+
+bool App::keyReleased(const OIS::KeyEvent &arg)
+{
+	return true;
+}
+
+bool App::mouseMoved(const OIS::MouseEvent& arg)
+{
+	return true;
+}
+
+bool App::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID button)
+{
+	return true;
+}
+
+bool App::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID button)
+{
+	return true;
+}
+
 
 int main(int argc, char** argv)
 {
