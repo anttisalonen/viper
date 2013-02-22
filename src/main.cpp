@@ -21,10 +21,11 @@ class App : public OIS::KeyListener, public OIS::MouseListener {
 		void initResources();
 		void initInput();
 		bool checkWindowResize();
+		void setupScene();
 
 		Ogre::Root* mRoot = nullptr;
 		Ogre::RenderWindow* mWindow = nullptr;
-		Ogre::SceneManager* mScene = nullptr;
+		Ogre::SceneManager* mSceneMgr = nullptr;
 		Ogre::SceneNode* mRootNode = nullptr;
 		Ogre::Camera* mCamera = nullptr;
 		Ogre::SceneNode* mCamNode = nullptr;
@@ -38,6 +39,8 @@ class App : public OIS::KeyListener, public OIS::MouseListener {
 		bool mRunning = false;
 		unsigned int mWindowWidth = 0;
 		unsigned int mWindowHeight = 0;
+
+		Ogre::Entity*         mOceanSurfaceEnt;
 };
 
 App::App()
@@ -65,9 +68,9 @@ App::App()
 			delete mRoot;
 			throw std::runtime_error("Could not create the render window.\n");
 		}
-		mScene = mRoot->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
-		mRootNode = mScene->getRootSceneNode();
-		mCamera = mScene->createCamera("Camera");
+		mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
+		mRootNode = mSceneMgr->getRootSceneNode();
+		mCamera = mSceneMgr->createCamera("Camera");
 		mCamNode = mRootNode->createChildSceneNode("CameraNode");
 		mCamNode->attachObject(mCamera);
 		mViewport = mWindow->addViewport(mCamera);
@@ -75,14 +78,14 @@ App::App()
 		mCamera->setAspectRatio(float(mViewport->getActualWidth()) / float(mViewport->getActualHeight()));
 		mCamera->setNearClipDistance(1.5f);
 		mCamera->setFarClipDistance(3000.0f);
-		mCamNode->setPosition(64, 64, 50.0f);
-		mCamera->lookAt(64, 64, 0);
 
-		mRaySceneQuery = mScene->createRayQuery(Ogre::Ray());
+		mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 
 		initResources();
 
 		initInput();
+
+		setupScene();
 		checkWindowResize();
 
 		mRunning = true;
@@ -92,7 +95,7 @@ App::App()
 void App::initResources()
 {
 	Ogre::ResourceGroupManager::getSingleton().createResourceGroup(APP_RESOURCE_NAME);
-	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share", "FileSystem", APP_RESOURCE_NAME, false);
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/ocean", "FileSystem", APP_RESOURCE_NAME, false);
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(APP_RESOURCE_NAME);
 	Ogre::ResourceGroupManager::getSingleton().loadResourceGroup(APP_RESOURCE_NAME);
 }
@@ -141,6 +144,30 @@ bool App::checkWindowResize()
 	return false;
 }
 
+void App::setupScene()
+{
+	// based on OceanDemo
+	// Set ambient light
+	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
+	mSceneMgr->setSkyBox(true, "SkyBox", 1000);
+
+	mCamera->moveRelative(Ogre::Vector3(50, 20, 100));
+	mCamera->lookAt(0, 0, 0);
+
+	// Define a plane mesh that will be used for the ocean surface
+	Ogre::Plane oceanSurface;
+	oceanSurface.normal = Ogre::Vector3::UNIT_Y;
+	oceanSurface.d = 0;
+	Ogre::MeshManager::getSingleton().createPlane("OceanSurface",
+			APP_RESOURCE_NAME,
+			oceanSurface,
+			1000, 1000, 50, 50, true, 1, 1, 1, Ogre::Vector3::UNIT_Z);
+
+	mOceanSurfaceEnt = mSceneMgr->createEntity( "OceanSurface", "OceanSurface" );
+	mOceanSurfaceEnt->setMaterialName("OceanSurface");
+	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(mOceanSurfaceEnt);
+}
+
 App::~App()
 {
 	delete mRoot;
@@ -148,10 +175,26 @@ App::~App()
 
 void App::go()
 {
+	while(mRunning && !mWindow->isClosed()) {
+		mRoot->renderOneFrame();
+		checkWindowResize();
+		Ogre::WindowEventUtilities::messagePump();
+		mKeyboard->capture();
+		mMouse->capture();
+	}
 }
 
 bool App::keyPressed(const OIS::KeyEvent &arg)
 {
+	switch(arg.key) {
+		case OIS::KC_ESCAPE:
+			mRunning = false;
+			break;
+
+		default:
+			break;
+	}
+
 	return true;
 }
 
