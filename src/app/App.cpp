@@ -1,47 +1,8 @@
-#include <iostream>
-#include <stdexcept>
+#include "App.h"
 
-#include <Ogre.h>
-#include <OIS.h>
+#include "InputHandler.h"
 
 #define APP_RESOURCE_NAME "Resources"
-
-class App : public OIS::KeyListener, public OIS::MouseListener {
-	public:
-		App();
-		~App();
-		void go();
-		bool keyPressed(const OIS::KeyEvent &arg);
-		bool keyReleased(const OIS::KeyEvent &arg);
-		bool mouseMoved(const OIS::MouseEvent& arg);
-		bool mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID button);
-		bool mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID button);
-
-	private:
-		void initResources();
-		void initInput();
-		bool checkWindowResize();
-		void setupScene();
-
-		Ogre::Root* mRoot = nullptr;
-		Ogre::RenderWindow* mWindow = nullptr;
-		Ogre::SceneManager* mSceneMgr = nullptr;
-		Ogre::SceneNode* mRootNode = nullptr;
-		Ogre::Camera* mCamera = nullptr;
-		Ogre::SceneNode* mCamNode = nullptr;
-		Ogre::Viewport* mViewport = nullptr;
-		Ogre::RaySceneQuery* mRaySceneQuery = nullptr;
-
-		OIS::InputManager* mInputManager = nullptr;
-		OIS::Keyboard* mKeyboard = nullptr;
-		OIS::Mouse* mMouse = nullptr;
-
-		bool mRunning = false;
-		unsigned int mWindowWidth = 0;
-		unsigned int mWindowHeight = 0;
-
-		Ogre::Entity*         mOceanSurfaceEnt;
-};
 
 App::App()
 {
@@ -58,7 +19,7 @@ App::App()
 		mRoot->setRenderSystem(rsys[0]);
 		mRoot->initialise(false, "", "");
 		Ogre::NameValuePairList params;
-		params["FSAA"] = "0";
+		params["FSAA"] = "4";
 		params["vsync"] = "false";
 		params["border"] = "fixed";
 		mWindowWidth = 1280;
@@ -83,12 +44,11 @@ App::App()
 
 		initResources();
 
+		mInputHandler = new InputHandler(this);
 		initInput();
 
 		setupScene();
 		checkWindowResize();
-
-		mRunning = true;
 	}
 }
 
@@ -96,6 +56,7 @@ void App::initResources()
 {
 	Ogre::ResourceGroupManager::getSingleton().createResourceGroup(APP_RESOURCE_NAME);
 	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/ocean", "FileSystem", APP_RESOURCE_NAME, false);
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/aircraft", "FileSystem", APP_RESOURCE_NAME, false);
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(APP_RESOURCE_NAME);
 	Ogre::ResourceGroupManager::getSingleton().loadResourceGroup(APP_RESOURCE_NAME);
 }
@@ -122,9 +83,9 @@ void App::initInput()
 #endif
 	mInputManager = OIS::InputManager::createInputSystem(pl);
 	mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject(OIS::OISKeyboard, true));
-	mKeyboard->setEventCallback(this);
+	mKeyboard->setEventCallback(mInputHandler);
 	mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject(OIS::OISMouse, true));
-	mMouse->setEventCallback(this);
+	mMouse->setEventCallback(mInputHandler);
 }
 
 bool App::checkWindowResize()
@@ -138,7 +99,6 @@ bool App::checkWindowResize()
 		mMouse->getMouseState().width = mWindowWidth;
 		mMouse->getMouseState().height = mWindowHeight;
 		mCamera->setAspectRatio(float(mViewport->getActualWidth()) / float(mViewport->getActualHeight()));
-		std::cout << "New window size: " << mWindowWidth << " x " << mWindowHeight << "\n";
 		return true;
 	}
 	return false;
@@ -163,73 +123,52 @@ void App::setupScene()
 			oceanSurface,
 			1000, 1000, 50, 50, true, 1, 1, 1, Ogre::Vector3::UNIT_Z);
 
-	mOceanSurfaceEnt = mSceneMgr->createEntity( "OceanSurface", "OceanSurface" );
+	mOceanSurfaceEnt = mSceneMgr->createEntity("OceanSurface", "OceanSurface");
 	mOceanSurfaceEnt->setMaterialName("OceanSurface");
 	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(mOceanSurfaceEnt);
+
+	mPlaneEnt = mSceneMgr->createEntity("Plane", "f16.mesh");
+	mPlaneEnt->setMaterialName("Material");
+	mPlaneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+	mPlaneNode->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(90.0f));
+	mPlaneNode->setPosition(20, 25, 50);
+	mPlaneNode->attachObject(mPlaneEnt);
 }
 
 App::~App()
 {
+	delete mInputHandler;
 	delete mRoot;
 }
 
 void App::go()
 {
-	while(mRunning && !mWindow->isClosed()) {
+	double prevTime = Common::Clock::getTime();
+	bool running = true;
+	while(running && !mWindow->isClosed()) {
 		mRoot->renderOneFrame();
 		checkWindowResize();
 		Ogre::WindowEventUtilities::messagePump();
 		mKeyboard->capture();
 		mMouse->capture();
+		double thisTime = Common::Clock::getTime();
+		double diffTime = thisTime - prevTime;
+		prevTime = thisTime;
+		if(!mInputHandler->frameRendered(diffTime)) {
+			running = false;
+		}
+		mFPSTimer.limitFPS(60);
 	}
 }
 
-bool App::keyPressed(const OIS::KeyEvent &arg)
+Ogre::Camera* App::getCamera()
 {
-	switch(arg.key) {
-		case OIS::KC_ESCAPE:
-			mRunning = false;
-			break;
-
-		default:
-			break;
-	}
-
-	return true;
+	return mCamera;
 }
 
-bool App::keyReleased(const OIS::KeyEvent &arg)
+Ogre::SceneNode* App::getPlaneNode()
 {
-	return true;
-}
-
-bool App::mouseMoved(const OIS::MouseEvent& arg)
-{
-	return true;
-}
-
-bool App::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID button)
-{
-	return true;
-}
-
-bool App::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID button)
-{
-	return true;
+	return mPlaneNode;
 }
 
 
-int main(int argc, char** argv)
-{
-	try {
-		App app;
-		app.go();
-	} catch (Ogre::Exception& e) {
-		std::cerr << "Ogre exception: " << e.what() << std::endl;
-		return 1;
-	} catch (std::exception& e) {
-		std::cerr << "std::exception: " << e.what() << std::endl;
-		return 1;
-	}
-	return 0;
-}
