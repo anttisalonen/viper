@@ -157,7 +157,7 @@ void App::go()
 		if(!mInputHandler->frameRendered(diffTime)) {
 			running = false;
 		}
-		mFPSTimer.limitFPS(60);
+		mFPSTimer.limitFPS(60, false);
 	}
 }
 
