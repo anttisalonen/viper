@@ -7,6 +7,7 @@ Game::Game(App* app, InputHandler* ih)
 	mInputHandler(ih)
 {
 	Plane* p = new Plane(Common::Vector3(20, 25, 50));
+	p->setController(mInputHandler);
 	mPlanes.push_back(p);
 }
 
@@ -21,8 +22,9 @@ Game::~Game()
 bool Game::update(float frameTime)
 {
 	for(auto p : mPlanes) {
+		p->update(frameTime);
 		mApp->updatePlane(p, p->getPosition(), p->getRotation());
 	}
-	return mInputHandler->update(frameTime);
+	return mInputHandler->running();
 }
 

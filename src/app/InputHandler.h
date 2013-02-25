@@ -3,10 +3,14 @@
 
 #include <OIS.h>
 
-class InputHandler : public OIS::KeyListener, public OIS::MouseListener {
+#include "PlaneController.h"
+
+class InputHandler : public PlaneController, public OIS::KeyListener, public OIS::MouseListener {
 	public:
 		InputHandler();
-		bool update(float time);
+		virtual void update(float time) override;
+		bool running() const;
+		virtual void planeReset() override;
 		bool keyPressed(const OIS::KeyEvent &arg);
 		bool keyReleased(const OIS::KeyEvent &arg);
 		bool mouseMoved(const OIS::MouseEvent& arg);

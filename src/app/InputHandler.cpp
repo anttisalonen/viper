@@ -6,14 +6,25 @@ InputHandler::InputHandler()
 {
 }
 
-bool InputHandler::update(float time)
+bool InputHandler::running() const
+{
+	return mRunning;
+}
+
+void InputHandler::planeReset()
+{
+}
+
+void InputHandler::update(float time)
 {
 	if(mForward) {
 		mForward *= 1.5f;
 		mForward = Common::clamp(-1.0f, mForward, 1.0f);
+		if(mPlane) {
+			//mPlane->forward(mForward);
+		}
 	}
 	//mApp->getPlaneNode()->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(90.0f * time));
-	return mRunning;
 }
 
 bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
