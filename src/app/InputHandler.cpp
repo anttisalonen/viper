@@ -1,21 +1,18 @@
 #include "InputHandler.h"
-#include "App.h"
 
 #include "common/Math.h"
 
-InputHandler::InputHandler(App* app)
-	: mApp(app)
+InputHandler::InputHandler()
 {
 }
 
-bool InputHandler::frameRendered(float time)
+bool InputHandler::update(float time)
 {
 	if(mForward) {
 		mForward *= 1.5f;
 		mForward = Common::clamp(-1.0f, mForward, 1.0f);
-		mApp->getCamera()->moveRelative(Ogre::Vector3(0, 0, mForward * 10.0f * time));
 	}
-	mApp->getPlaneNode()->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(90.0f * time));
+	//mApp->getPlaneNode()->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(90.0f * time));
 	return mRunning;
 }
 

@@ -1,6 +1,8 @@
 #include "App.h"
 
 #include "InputHandler.h"
+#include "Game.h"
+#include "Entity.h"
 
 #define APP_RESOURCE_NAME "Resources"
 
@@ -32,23 +34,24 @@ App::App()
 		mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
 		mRootNode = mSceneMgr->getRootSceneNode();
 		mCamera = mSceneMgr->createCamera("Camera");
-		mCamNode = mRootNode->createChildSceneNode("CameraNode");
-		mCamNode->attachObject(mCamera);
 		mViewport = mWindow->addViewport(mCamera);
 		mViewport->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
 		mCamera->setAspectRatio(float(mViewport->getActualWidth()) / float(mViewport->getActualHeight()));
 		mCamera->setNearClipDistance(1.5f);
 		mCamera->setFarClipDistance(3000.0f);
+		mCamera->lookAt(20, 25, 50);
 
 		mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 
 		initResources();
 
-		mInputHandler = new InputHandler(this);
+		mInputHandler = new InputHandler();
 		initInput();
 
 		setupScene();
 		checkWindowResize();
+
+		mGame = new Game(this, mInputHandler);
 	}
 }
 
@@ -111,9 +114,6 @@ void App::setupScene()
 	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
 	mSceneMgr->setSkyBox(true, "SkyBox", 1000);
 
-	mCamera->moveRelative(Ogre::Vector3(50, 20, 100));
-	mCamera->lookAt(0, 0, 0);
-
 	// Define a plane mesh that will be used for the ocean surface
 	Ogre::Plane oceanSurface;
 	oceanSurface.normal = Ogre::Vector3::UNIT_Y;
@@ -127,16 +127,14 @@ void App::setupScene()
 	mOceanSurfaceEnt->setMaterialName("OceanSurface");
 	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(mOceanSurfaceEnt);
 
-	mPlaneEnt = mSceneMgr->createEntity("Plane", "f16.mesh");
-	mPlaneEnt->setMaterialName("Material");
-	mPlaneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-	mPlaneNode->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(90.0f));
-	mPlaneNode->setPosition(20, 25, 50);
-	mPlaneNode->attachObject(mPlaneEnt);
+	mCamNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("CameraNode");
+	mCamNode->attachObject(mCamera);
+	mCamera->moveRelative(Ogre::Vector3(0, 5, -20));
 }
 
 App::~App()
 {
+	delete mGame;
 	delete mInputHandler;
 	delete mRoot;
 }
@@ -154,21 +152,45 @@ void App::go()
 		double thisTime = Common::Clock::getTime();
 		double diffTime = thisTime - prevTime;
 		prevTime = thisTime;
-		if(!mInputHandler->frameRendered(diffTime)) {
+		if(!mGame->update(diffTime)) {
 			running = false;
 		}
 		mFPSTimer.limitFPS(60, false);
 	}
 }
 
-Ogre::Camera* App::getCamera()
+void App::updatePlane(const VisibleEntity* p,
+		const Common::Vector3& v,
+		const Common::Quaternion& q)
 {
-	return mCamera;
-}
+	Ogre::Entity* e;
+	Ogre::SceneNode* n;
+	auto it = mEntities.find(p);
 
-Ogre::SceneNode* App::getPlaneNode()
-{
-	return mPlaneNode;
+	if(it == mEntities.end()) {
+		char entityname[256];
+		snprintf(entityname, 255, "Plane%4d", ++mNumEntities);
+		e = mSceneMgr->createEntity(entityname, "f16.mesh");
+		e->setMaterialName("Material");
+
+		n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		n->attachObject(e);
+
+		mEntities.insert({p, e});
+
+#if 0
+		mCamNode = mPlaneNode->createChildSceneNode("CameraNode");
+		mCamNode->attachObject(mCamera);
+		mCamera->moveRelative(Ogre::Vector3(0, 5, -20));
+		mCamera->setAutoTracking(true, mPlaneNode);
+#endif
+	} else {
+		e = it->second;
+		n = e->getParentSceneNode();
+	}
+
+	n->setOrientation(q.x, q.y, q.z, q.w);
+	n->setPosition(v.x, v.y, v.z);
 }
 
 

@@ -1,20 +1,27 @@
 #ifndef APP_APP_H
 #define APP_APP_H
 
+#include <map>
+
 #include <Ogre.h>
 #include <OIS.h>
 
 #include "common/Clock.h"
+#include "common/Vector3.h"
+#include "common/Quaternion.h"
 
 class InputHandler;
+class Game;
+class VisibleEntity;
 
 class App {
 	public:
 		App();
 		~App();
 		void go();
-		Ogre::Camera* getCamera();
-		Ogre::SceneNode* getPlaneNode();
+		void updatePlane(const VisibleEntity* p,
+				const Common::Vector3& v,
+				const Common::Quaternion& q);
 
 	private:
 		void initResources();
@@ -31,6 +38,7 @@ class App {
 		Ogre::Viewport* mViewport = nullptr;
 		Ogre::RaySceneQuery* mRaySceneQuery = nullptr;
 
+		Game* mGame = nullptr;
 		InputHandler* mInputHandler = nullptr;
 		OIS::InputManager* mInputManager = nullptr;
 		OIS::Keyboard* mKeyboard = nullptr;
@@ -40,10 +48,12 @@ class App {
 		unsigned int mWindowHeight = 0;
 
 		Ogre::Entity*         mOceanSurfaceEnt = nullptr;
-		Ogre::Entity*         mPlaneEnt = nullptr;
-		Ogre::SceneNode* mPlaneNode = nullptr;
 
 		Common::Clock mFPSTimer;
+
+		std::map<const VisibleEntity*, Ogre::Entity*> mEntities;
+
+		unsigned int mNumEntities = 0;
 };
 
 #endif
