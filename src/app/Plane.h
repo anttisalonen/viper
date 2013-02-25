@@ -8,15 +8,25 @@
 
 class PlaneController;
 
+enum class PrincipalAxis {
+	Roll,
+	Yaw,
+	Pitch
+};
+
 class Plane : public VisibleEntity {
 	public:
 		Plane(const Common::Vector3& pos);
 		void update(float t);
-		void setTargetPitchVelocity(float v);
+		void setTargetVelocity(PrincipalAxis a, float v);
 		void setController(PlaneController* p);
+		const Common::Vector3& getVelocity() const;
 
 	private:
 		PlaneController* mController = nullptr;
+		Common::Vector3 mVelocity;
+		float mRotationVelocities[3];
+		float mRotationTargetVelocities[3];
 };
 
 #endif

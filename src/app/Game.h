@@ -18,6 +18,7 @@ class Game {
 		App* mApp;
 		InputHandler* mInputHandler;
 		std::list<Plane*> mPlanes;
+		Plane* mTrackingPlane;
 };
 
 #endif

@@ -18,7 +18,9 @@ class InputHandler : public PlaneController, public OIS::KeyListener, public OIS
 		bool mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID button);
 
 	private:
-		float mForward = 0.0;
+		float mPitch = 0.0f;
+		float mRoll = 0.0f;
+		float mYaw = 0.0f;
 		bool mRunning = true;
 };
 

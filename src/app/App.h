@@ -22,6 +22,9 @@ class App {
 		void updatePlane(const VisibleEntity* p,
 				const Common::Vector3& v,
 				const Common::Quaternion& q);
+		void setCamera(const Common::Vector3& offset,
+				const Common::Vector3& lookat,
+				const Common::Quaternion& rot);
 
 	private:
 		void initResources();

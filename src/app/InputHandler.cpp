@@ -1,7 +1,5 @@
 #include "InputHandler.h"
 
-#include "common/Math.h"
-
 InputHandler::InputHandler()
 {
 }
@@ -17,14 +15,12 @@ void InputHandler::planeReset()
 
 void InputHandler::update(float time)
 {
-	if(mForward) {
-		mForward *= 1.5f;
-		mForward = Common::clamp(-1.0f, mForward, 1.0f);
-		if(mPlane) {
-			//mPlane->forward(mForward);
-		}
+	mPitch *= 1.5f;
+	if(mPlane) {
+		mPlane->setTargetVelocity(PrincipalAxis::Pitch, mPitch);
+		mPlane->setTargetVelocity(PrincipalAxis::Yaw, mYaw);
+		mPlane->setTargetVelocity(PrincipalAxis::Roll, mRoll);
 	}
-	//mApp->getPlaneNode()->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(90.0f * time));
 }
 
 bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
@@ -36,12 +32,30 @@ bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
 
 		case OIS::KC_UP:
 		case OIS::KC_W:
-			mForward = 0.1f;
+			mPitch = 0.1f;
 			break;
 
 		case OIS::KC_DOWN:
 		case OIS::KC_S:
-			mForward = -0.1f;
+			mPitch = -0.1f;
+			break;
+
+		case OIS::KC_Q:
+			mYaw = 0.1f;
+			break;
+
+		case OIS::KC_E:
+			mYaw = -0.1f;
+			break;
+
+		case OIS::KC_LEFT:
+		case OIS::KC_A:
+			mRoll = -0.1f;
+			break;
+
+		case OIS::KC_RIGHT:
+		case OIS::KC_D:
+			mRoll = 0.1f;
 			break;
 
 		default:
@@ -55,10 +69,22 @@ bool InputHandler::keyReleased(const OIS::KeyEvent &arg)
 {
 	switch(arg.key) {
 		case OIS::KC_UP:
-		case OIS::KC_W:
 		case OIS::KC_DOWN:
+		case OIS::KC_W:
 		case OIS::KC_S:
-			mForward = 0.0f;
+			mPitch = 0.0f;
+			break;
+
+		case OIS::KC_LEFT:
+		case OIS::KC_RIGHT:
+		case OIS::KC_A:
+		case OIS::KC_D:
+			mRoll = 0.0f;
+			break;
+
+		case OIS::KC_Q:
+		case OIS::KC_E:
+			mYaw = 0.0f;
 			break;
 
 		default:

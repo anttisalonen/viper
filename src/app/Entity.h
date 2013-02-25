@@ -14,7 +14,7 @@ class VisibleEntity : public Entity {
 		const Common::Vector3& getPosition() const;
 		const Common::Quaternion& getRotation() const;
 
-	private:
+	protected:
 		Common::Vector3 mPosition;
 		Common::Quaternion mRotation;
 };

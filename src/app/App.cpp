@@ -177,20 +177,24 @@ void App::updatePlane(const VisibleEntity* p,
 		n->attachObject(e);
 
 		mEntities.insert({p, e});
-
-#if 0
-		mCamNode = mPlaneNode->createChildSceneNode("CameraNode");
-		mCamNode->attachObject(mCamera);
-		mCamera->moveRelative(Ogre::Vector3(0, 5, -20));
-		mCamera->setAutoTracking(true, mPlaneNode);
-#endif
 	} else {
 		e = it->second;
 		n = e->getParentSceneNode();
 	}
 
-	n->setOrientation(q.x, q.y, q.z, q.w);
+	n->setOrientation(q.w, q.z, q.y, q.x);
 	n->setPosition(v.x, v.y, v.z);
+}
+
+void App::setCamera(const Common::Vector3& offset,
+		const Common::Vector3& lookat,
+		const Common::Quaternion& rot)
+{
+	Ogre::Quaternion q(rot.w, rot.z, rot.y, rot.x);
+	Ogre::Vector3 l(lookat.x, lookat.y, lookat.z);
+	Ogre::Vector3 o(offset.x, offset.y, offset.z);
+	mCamera->setPosition(l + (q * o));
+	mCamera->lookAt(l);
 }
 
 
