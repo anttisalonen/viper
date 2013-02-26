@@ -12,6 +12,9 @@ Game::Game(App* app, InputHandler* ih)
 	mInputHandler->setPlane(p);
 
 	mTrackingPlane = p;
+
+	Plane* p2 = new Plane(Common::Vector3(20, 55, 60));
+	mPlanes.push_back(p2);
 }
 
 Game::~Game()
