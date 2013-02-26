@@ -26,7 +26,7 @@ Game::~Game()
 bool Game::update(float frameTime)
 {
 	if(mTrackingPlane) {
-		Common::Vector3 offset = mTrackingPlane->getVelocity() * -3.0f;
+		Common::Vector3 offset = Common::Vector3(0, 0, -30);
 		offset.y += 5.0f;
 		mApp->setCamera(offset, mTrackingPlane->getPosition(),
 				mTrackingPlane->getRotation());

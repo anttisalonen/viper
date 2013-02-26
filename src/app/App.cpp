@@ -189,7 +189,7 @@ void App::updatePlane(const VisibleEntity* p,
 		n = e->getParentSceneNode();
 	}
 
-	n->setOrientation(q.w, q.z, q.y, q.x);
+	n->setOrientation(q.w, q.x, q.y, q.z);
 	n->setPosition(v.x, v.y, v.z);
 }
 
@@ -197,7 +197,7 @@ void App::setCamera(const Common::Vector3& offset,
 		const Common::Vector3& lookat,
 		const Common::Quaternion& rot)
 {
-	Ogre::Quaternion q(rot.w, rot.z, rot.y, rot.x);
+	Ogre::Quaternion q(rot.w, rot.x, rot.y, rot.z);
 	Ogre::Vector3 l(lookat.x, lookat.y, lookat.z);
 	Ogre::Vector3 o(offset.x, offset.y, offset.z);
 	mCamera->setPosition(l + (q * o));

@@ -28,19 +28,21 @@ void Plane::update(float t)
 		mRotationVelocities[i] = Common::clamp(-1.0f, updatedV, 1.0f);
 
 		if(mRotationVelocities[i]) {
-			static const float coefficient[3] = { 10.0f, 10.0f, 1.0f };
+			static const float coefficient[3] = { 5.0f, 2.0f, 5.0f };
 
 			Common::Vector3 axis(i == 0 ? 1 : 0, i == 1 ? 1 : 0, i == 2 ? 1 : 0);
 			Common::Quaternion q = Common::Quaternion::fromAxisAngle(axis,
 					mRotationVelocities[i] * t * coefficient[i]);
-			rot = q * rot;
+			rot = rot * q;
 		}
 	}
-	mRotation = rot * mRotation;
+	mRotation = mRotation * rot;
 	mRotation = mRotation.versor();
 
 	if(mController)
 		mController->update(t);
+
+	mVelocity = Common::Math::rotate3D(Common::Vector3(0, 0, 1), mRotation) * 40.0f;
 }
 
 void Plane::setTargetVelocity(PrincipalAxis a, float v)

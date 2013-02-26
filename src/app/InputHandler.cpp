@@ -1,4 +1,5 @@
 #include "InputHandler.h"
+#include "common/Math.h"
 
 InputHandler::InputHandler()
 {
@@ -15,7 +16,9 @@ void InputHandler::planeReset()
 
 void InputHandler::update(float time)
 {
-	mPitch *= 1.5f;
+	mPitch = Common::clamp(-1.0f, mPitch * 1.1f, 1.0f);
+	mYaw   = Common::clamp(-1.0f, mYaw   * 1.1f, 1.0f);
+	mRoll  = Common::clamp(-1.0f, mRoll  * 1.1f, 1.0f);
 	if(mPlane) {
 		mPlane->setTargetVelocity(PrincipalAxis::Pitch, mPitch);
 		mPlane->setTargetVelocity(PrincipalAxis::Yaw, mYaw);

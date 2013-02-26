@@ -9,9 +9,9 @@
 class PlaneController;
 
 enum class PrincipalAxis {
-	Roll,
+	Pitch,
 	Yaw,
-	Pitch
+	Roll,
 };
 
 class Plane : public VisibleEntity {
