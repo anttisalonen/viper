@@ -25,6 +25,8 @@ class App {
 		void setCamera(const Common::Vector3& offset,
 				const Common::Vector3& lookat,
 				const Common::Quaternion& rot);
+		void setCamera(const Common::Vector3& position,
+				const Common::Quaternion& rot);
 
 	private:
 		void initResources();

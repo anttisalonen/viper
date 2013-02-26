@@ -5,6 +5,11 @@
 
 #include "PlaneController.h"
 
+enum class ViewSetting {
+	Offset,
+	Cockpit
+};
+
 class InputHandler : public PlaneController, public OIS::KeyListener, public OIS::MouseListener {
 	public:
 		InputHandler();
@@ -16,12 +21,14 @@ class InputHandler : public PlaneController, public OIS::KeyListener, public OIS
 		bool mouseMoved(const OIS::MouseEvent& arg);
 		bool mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID button);
 		bool mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID button);
+		ViewSetting getCurrentViewSetting() const;
 
 	private:
 		float mPitch = 0.0f;
 		float mRoll = 0.0f;
 		float mYaw = 0.0f;
 		bool mRunning = true;
+		ViewSetting mViewSetting = ViewSetting::Cockpit;
 };
 
 #endif

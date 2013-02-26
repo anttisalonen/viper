@@ -61,6 +61,21 @@ bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
 			mRoll = 0.1f;
 			break;
 
+		case OIS::KC_C:
+			switch(mViewSetting) {
+				case ViewSetting::Cockpit:
+					mViewSetting = ViewSetting::Offset;
+					break;
+
+				case ViewSetting::Offset:
+					mViewSetting = ViewSetting::Cockpit;
+					break;
+
+				default:
+					break;
+			}
+			break;
+
 		default:
 			break;
 	}
@@ -112,4 +127,8 @@ bool InputHandler::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID 
 	return true;
 }
 
+ViewSetting InputHandler::getCurrentViewSetting() const
+{
+	return mViewSetting;
+}
 

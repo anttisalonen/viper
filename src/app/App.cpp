@@ -37,7 +37,7 @@ App::App()
 		mViewport = mWindow->addViewport(mCamera);
 		mViewport->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
 		mCamera->setAspectRatio(float(mViewport->getActualWidth()) / float(mViewport->getActualHeight()));
-		mCamera->setNearClipDistance(1.5f);
+		mCamera->setNearClipDistance(5.0f);
 		mCamera->setFarClipDistance(3000.0f);
 		mCamera->lookAt(20, 25, 50);
 
@@ -197,6 +197,7 @@ void App::setCamera(const Common::Vector3& offset,
 		const Common::Vector3& lookat,
 		const Common::Quaternion& rot)
 {
+	// TODO: make camera transitions smooth (both position and orientation)
 	Ogre::Quaternion q(rot.w, rot.x, rot.y, rot.z);
 	Ogre::Vector3 l(lookat.x, lookat.y, lookat.z);
 	Ogre::Vector3 o(offset.x, offset.y, offset.z);
@@ -204,4 +205,13 @@ void App::setCamera(const Common::Vector3& offset,
 	mCamera->lookAt(l);
 }
 
+void App::setCamera(const Common::Vector3& position,
+		const Common::Quaternion& rot)
+{
+	mCamera->setPosition(Ogre::Vector3(position.x, position.y, position.z));
+	// NOTE: the x and z axes are inverted, probably because of the model
+	// geometry
+	mCamera->setOrientation(Ogre::Quaternion(rot.w, -rot.x, rot.y, -rot.z));
+	mCamera->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(180));
+}
 

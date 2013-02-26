@@ -2,6 +2,8 @@
 #include "InputHandler.h"
 #include "App.h"
 
+#include "common/Math.h"
+
 Game::Game(App* app, InputHandler* ih)
 	: mApp(app),
 	mInputHandler(ih)
@@ -28,17 +30,33 @@ Game::~Game()
 
 bool Game::update(float frameTime)
 {
-	if(mTrackingPlane) {
-		Common::Vector3 offset = Common::Vector3(0, 0, -30);
-		offset.y += 5.0f;
-		mApp->setCamera(offset, mTrackingPlane->getPosition(),
-				mTrackingPlane->getRotation());
-	}
-
 	for(auto p : mPlanes) {
 		p->update(frameTime);
 		mApp->updatePlane(p, p->getPosition(), p->getRotation());
 	}
+
+	if(mTrackingPlane) {
+		switch(mInputHandler->getCurrentViewSetting()) {
+			case ViewSetting::Cockpit:
+				{
+					Common::Vector3 viewpoint = mTrackingPlane->getPosition() +
+						Common::Math::rotate3D(Common::Vector3(0, 1.5, 4),
+								mTrackingPlane->getRotation());
+					mApp->setCamera(viewpoint, mTrackingPlane->getRotation());
+				}
+				break;
+
+			case ViewSetting::Offset:
+				{
+					Common::Vector3 offset = Common::Vector3(0, 0, -30);
+					offset.y += 5.0f;
+					mApp->setCamera(offset, mTrackingPlane->getPosition(),
+							mTrackingPlane->getRotation());
+				}
+				break;
+		}
+	}
+
 	return mInputHandler->running();
 }
 
