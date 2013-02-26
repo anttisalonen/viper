@@ -114,6 +114,13 @@ void App::setupScene()
 	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
 	mSceneMgr->setSkyBox(true, "SkyBox", 1000);
 
+	Ogre::Light* sun = mSceneMgr->createLight("sun");
+	sun->setType(Ogre::Light::LT_DIRECTIONAL);
+	sun->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
+	sun->setSpecularColour(Ogre::ColourValue(1, 1, 1));
+	sun->setDirection(-1, -0.2, 0);
+
+
 	// Define a plane mesh that will be used for the ocean surface
 	Ogre::Plane oceanSurface;
 	oceanSurface.normal = Ogre::Vector3::UNIT_Y;
