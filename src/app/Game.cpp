@@ -40,8 +40,8 @@ bool Game::update(float frameTime)
 			case ViewSetting::Cockpit:
 				{
 					Common::Vector3 viewpoint = mTrackingPlane->getPosition() +
-						Common::Math::rotate3D(Common::Vector3(0, 1.5, 4),
-								mTrackingPlane->getRotation());
+						Common::Math::rotate3D(Common::Vector3(0, 1, 5),
+								mTrackingPlane->getRotation()) * 5.0f;
 					mApp->setCamera(viewpoint, mTrackingPlane->getRotation());
 				}
 				break;

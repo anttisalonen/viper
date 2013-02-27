@@ -182,6 +182,16 @@ void App::updatePlane(const VisibleEntity* p,
 		n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		n->attachObject(e);
 
+		for(int i = 0; i < 2; i++) {
+			char swname[256];
+			snprintf(swname, 255, "Sidewinder%4d", ++mNumEntities);
+			auto swEnt = mSceneMgr->createEntity(swname, "sidewinder.mesh");
+			auto swNode = n->createChildSceneNode();
+			swNode->pitch(Ogre::Degree(-90));
+			swNode->setPosition(i == 0 ? -4.80f : 4.80f, -0.18f, -1.0f);
+			swNode->attachObject(swEnt);
+		}
+
 		mEntities.insert({p, e});
 	} else {
 		e = it->second;
