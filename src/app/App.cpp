@@ -178,7 +178,6 @@ void App::updatePlane(const VisibleEntity* p,
 		char entityname[256];
 		snprintf(entityname, 255, "Plane%4d", ++mNumEntities);
 		e = mSceneMgr->createEntity(entityname, "f16.mesh");
-		e->setMaterialName("Material");
 
 		n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		n->attachObject(e);

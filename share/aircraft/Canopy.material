@@ -1,16 +1,16 @@
-// Material genrated by blender2ogre 0.5.9
+// Canopy genrated by blender2ogre 0.5.9
 
-material Material 
+material Canopy 
 {
     receive_shadows on 
 
     technique
     {
-        pass Material
+        pass Canopy
         {
-            ambient 0.800000011920929 0.800000011920929 0.800000011920929 1.0
-            diffuse 0.6400000190734865 0.6400000190734865 0.6400000190734865 1.0
-            specular 0.5 0.5 0.5 1.0 12.5
+            ambient 0.6618837118148804 0.810089111328125 1.0 1.0
+            diffuse 0.18137333056400706 0.22198545991159335 0.27402597665786743 1.0
+            specular 1.0 1.0 1.0 1.0 12.5
             emissive 0.0 0.0 0.0 1.0
 
             alpha_to_coverage off
