@@ -3,10 +3,12 @@
 
 #include <Ogre.h>
 
-#include "Plane.h"
+#include "common/Vector3.h"
 
 class App;
 class InputHandler;
+class Plane;
+class Missile;
 
 class Game {
 	public:
@@ -15,9 +17,12 @@ class Game {
 		bool update(float frameTime);
 
 	private:
+		Plane* addPlane(const Common::Vector3& pos);
+
 		App* mApp;
 		InputHandler* mInputHandler;
 		std::list<Plane*> mPlanes;
+		std::list<Missile*> mMissiles;
 		Plane* mTrackingPlane;
 };
 

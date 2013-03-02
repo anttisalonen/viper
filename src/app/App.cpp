@@ -3,6 +3,7 @@
 #include "InputHandler.h"
 #include "Game.h"
 #include "Entity.h"
+#include "Missile.h"
 
 #define APP_RESOURCE_NAME "Resources"
 
@@ -11,6 +12,7 @@ App::App()
 	mRoot = new Ogre::Root("", "", "");
 	mRoot->loadPlugin(OGRE_PLUGIN_DIR "/RenderSystem_GL");
 	mRoot->loadPlugin(OGRE_PLUGIN_DIR "/Plugin_OctreeSceneManager");
+	mRoot->loadPlugin(OGRE_PLUGIN_DIR "/Plugin_ParticleFX");
 
 	const Ogre::RenderSystemList& rsys = mRoot->getAvailableRenderers();
 	if(rsys.size() == 0) {
@@ -166,31 +168,23 @@ void App::go()
 	}
 }
 
-void App::updatePlane(const VisibleEntity* p,
-		const Common::Vector3& v,
-		const Common::Quaternion& q)
+void App::updateEntity(const VisibleEntity* p)
 {
+	const Common::Vector3& v = p->getPosition();
+	const Common::Quaternion& q = p->getRotation();
 	Ogre::Entity* e;
 	Ogre::SceneNode* n;
 	auto it = mEntities.find(p);
 
 	if(it == mEntities.end()) {
 		char entityname[256];
-		snprintf(entityname, 255, "Plane%4d", ++mNumEntities);
-		e = mSceneMgr->createEntity(entityname, "f16.mesh");
+		char meshname[256];
+		snprintf(entityname, 255, "Entity %4d", ++mNumEntities);
+		snprintf(meshname, 255, "%s.mesh", p->getType());
+		e = mSceneMgr->createEntity(entityname, meshname);
 
 		n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		n->attachObject(e);
-
-		for(int i = 0; i < 2; i++) {
-			char swname[256];
-			snprintf(swname, 255, "Sidewinder%4d", ++mNumEntities);
-			auto swEnt = mSceneMgr->createEntity(swname, "sidewinder.mesh");
-			auto swNode = n->createChildSceneNode();
-			swNode->pitch(Ogre::Degree(-90));
-			swNode->setPosition(i == 0 ? -4.80f : 4.80f, -0.18f, -1.0f);
-			swNode->attachObject(swEnt);
-		}
 
 		mEntities.insert({p, e});
 	} else {
@@ -200,6 +194,57 @@ void App::updatePlane(const VisibleEntity* p,
 
 	n->setOrientation(q.w, q.x, q.y, q.z);
 	n->setPosition(v.x, v.y, v.z);
+}
+
+void App::removeEntity(const VisibleEntity* p)
+{
+	auto it = mEntities.find(p);
+	if(it != mEntities.end()) {
+		Ogre::Entity* e = it->second;
+		auto n = e->getParentSceneNode();
+		e->detachFromParent();
+		mSceneMgr->destroyEntity(e);
+		mSceneMgr->destroySceneNode(n);
+		mEntities.erase(it);
+	}
+}
+
+void App::updateMissile(const Missile* m)
+{
+	updateEntity(m);
+	if(!m->attached()) {
+		Ogre::SceneNode* n;
+		auto eit = mEntities.find(m);
+		assert(eit != mEntities.end());
+		n = eit->second->getParentSceneNode();
+
+		Ogre::ParticleSystem* ps;
+		auto it = mMissileEngines.find(m);
+
+		if(it == mMissileEngines.end()) {
+			char instancename[256];
+			snprintf(instancename, 255, "MissileEngine %4d", ++mNumMissileEngines);
+			ps = mSceneMgr->createParticleSystem(instancename, "MissileEngine");
+			n->attachObject(ps);
+
+			mMissileEngines.insert({m, ps});
+		} else {
+			ps = it->second;
+		}
+	}
+}
+
+void App::removeMissile(const Missile* m)
+{
+	auto it = mMissileEngines.find(m);
+	if(it != mMissileEngines.end()) {
+		Ogre::ParticleSystem* ps = it->second;
+		ps->detachFromParent();
+		mSceneMgr->destroyParticleSystem(ps);
+		mMissileEngines.erase(it);
+	}
+
+	removeEntity(m);
 }
 
 void App::setCamera(const Common::Vector3& offset,

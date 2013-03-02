@@ -2,21 +2,34 @@
 #include "InputHandler.h"
 #include "App.h"
 
+#include "Plane.h"
+#include "Missile.h"
+
 #include "common/Math.h"
 
 Game::Game(App* app, InputHandler* ih)
 	: mApp(app),
 	mInputHandler(ih)
 {
-	Plane* p = new Plane(Common::Vector3(20, 25, 50));
-	mPlanes.push_back(p);
+	Plane* p = addPlane(Common::Vector3(20, 25, 50));
 	p->setController(mInputHandler);
 	mInputHandler->setPlane(p);
 
 	mTrackingPlane = p;
 
-	Plane* p2 = new Plane(Common::Vector3(20, 55, 60));
-	mPlanes.push_back(p2);
+	addPlane(Common::Vector3(20, 55, 60));
+}
+
+Plane* Game::addPlane(const Common::Vector3& pos)
+{
+	Plane* p = new Plane(pos);
+	mPlanes.push_back(p);
+	for(unsigned int i = 0; i < 2; i++) {
+		Missile* m = new Missile(p);
+		p->addMissile(m);
+		mMissiles.push_back(m);
+	}
+	return p;
 }
 
 Game::~Game()
@@ -26,13 +39,31 @@ Game::~Game()
 		delete p;
 	}
 	mPlanes.clear();
+
+	for(auto p : mMissiles) {
+		delete p;
+	}
+	mMissiles.clear();
 }
 
 bool Game::update(float frameTime)
 {
 	for(auto p : mPlanes) {
 		p->update(frameTime);
-		mApp->updatePlane(p, p->getPosition(), p->getRotation());
+		mApp->updateEntity(p);
+	}
+
+	for(auto mit = mMissiles.begin(); mit != mMissiles.end(); ) {
+		(*mit)->update(frameTime);
+		mApp->updateMissile(*mit);
+
+		if((*mit)->outOfFuel()) {
+			mApp->removeMissile(*mit);
+			delete *mit;
+			mit = mMissiles.erase(mit);
+		} else {
+			++mit;
+		}
 	}
 
 	if(mTrackingPlane) {

@@ -28,6 +28,7 @@ class InputHandler : public PlaneController, public OIS::KeyListener, public OIS
 		float mRoll = 0.0f;
 		float mYaw = 0.0f;
 		bool mRunning = true;
+		bool mShooting = false;
 		ViewSetting mViewSetting = ViewSetting::Cockpit;
 };
 

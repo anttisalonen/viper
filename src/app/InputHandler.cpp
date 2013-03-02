@@ -23,6 +23,11 @@ void InputHandler::update(float time)
 		mPlane->setTargetVelocity(PrincipalAxis::Pitch, mPitch);
 		mPlane->setTargetVelocity(PrincipalAxis::Yaw, mYaw);
 		mPlane->setTargetVelocity(PrincipalAxis::Roll, mRoll);
+
+		if(mShooting) {
+			mShooting = false;
+			mPlane->shoot();
+		}
 	}
 }
 
@@ -59,6 +64,10 @@ bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
 		case OIS::KC_RIGHT:
 		case OIS::KC_D:
 			mRoll = 0.1f;
+			break;
+
+		case OIS::KC_SPACE:
+			mShooting = true;
 			break;
 
 		case OIS::KC_C:

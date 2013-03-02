@@ -13,15 +13,17 @@
 class InputHandler;
 class Game;
 class VisibleEntity;
+class Missile;
 
 class App {
 	public:
 		App();
 		~App();
 		void go();
-		void updatePlane(const VisibleEntity* p,
-				const Common::Vector3& v,
-				const Common::Quaternion& q);
+		void updateEntity(const VisibleEntity* p);
+		void removeEntity(const VisibleEntity* p);
+		void updateMissile(const Missile* m);
+		void removeMissile(const Missile* m);
 		void setCamera(const Common::Vector3& offset,
 				const Common::Vector3& lookat,
 				const Common::Quaternion& rot);
@@ -57,8 +59,10 @@ class App {
 		Common::Clock mFPSTimer;
 
 		std::map<const VisibleEntity*, Ogre::Entity*> mEntities;
+		std::map<const Missile*, Ogre::ParticleSystem*> mMissileEngines;
 
 		unsigned int mNumEntities = 0;
+		unsigned int mNumMissileEngines = 0;
 };
 
 #endif

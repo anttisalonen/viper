@@ -24,7 +24,7 @@ BIN     = $(BINDIR)/$(BINNAME)
 
 SRCDIR = src/app
 
-SRCFILES = Entity.cpp Plane.cpp Game.cpp InputHandler.cpp App.cpp main.cpp
+SRCFILES = Entity.cpp Missile.cpp Plane.cpp Game.cpp InputHandler.cpp App.cpp main.cpp
 
 SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
 OBJS = $(SRCS:.cpp=.o)
