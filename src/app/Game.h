@@ -15,6 +15,7 @@ class Game {
 		Game(App* app, InputHandler* ih);
 		~Game();
 		bool update(float frameTime);
+		std::list<Plane*>& getPlanes();
 
 	private:
 		Plane* addPlane(const Common::Vector3& pos);

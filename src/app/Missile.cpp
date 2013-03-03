@@ -1,5 +1,6 @@
 #include "Missile.h"
 #include "Plane.h"
+#include "Game.h"
 
 #include "common/Math.h"
 
@@ -19,16 +20,26 @@ void Missile::update(float t)
 		mVelocity = mPlane->getVelocity();
 	} else {
 		if(mVelocity.length() < 100.0f) {
-			mVelocity += mVelocity * 0.5f * t;
+			mVelocity += mVelocity * 1.5f * t;
 		}
 		mFuelTime -= t;
+
+		if(mTarget) {
+			Common::Quaternion tgtRotation =
+				Common::Quaternion::getRotationTo(mVelocity,
+						mTarget->getPosition() - getPosition());
+			mRotation = mRotation.slerp(tgtRotation, Common::clamp(0.0f, 3.0f * t, 1.0f));
+			mVelocity = Common::Math::rotate3D(Common::Vector3(0, 0, 1), mRotation) * mVelocity.length();
+		}
+
 		VisibleEntity::update(t);
 	}
 }
 
-void Missile::shoot()
+void Missile::shoot(Plane* tgt)
 {
 	mPlane = nullptr;
+	mTarget = tgt;
 }
 
 const char* Missile::getType() const

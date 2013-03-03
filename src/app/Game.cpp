@@ -22,7 +22,7 @@ Game::Game(App* app, InputHandler* ih)
 
 Plane* Game::addPlane(const Common::Vector3& pos)
 {
-	Plane* p = new Plane(pos);
+	Plane* p = new Plane(this, pos);
 	mPlanes.push_back(p);
 	for(unsigned int i = 0; i < 2; i++) {
 		Missile* m = new Missile(p);
@@ -82,12 +82,18 @@ bool Game::update(float frameTime)
 					Common::Vector3 offset = Common::Vector3(0, 0, -30);
 					offset.y += 5.0f;
 					mApp->setCamera(offset, mTrackingPlane->getPosition(),
-							mTrackingPlane->getRotation());
+							mTrackingPlane->getRotation() *
+							mInputHandler->getViewRotation());
 				}
 				break;
 		}
 	}
 
 	return mInputHandler->running();
+}
+
+std::list<Plane*>& Game::getPlanes()
+{
+	return mPlanes;
 }
 

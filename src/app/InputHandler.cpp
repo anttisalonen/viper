@@ -83,6 +83,7 @@ bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
 				default:
 					break;
 			}
+			mViewRotation.reset();
 			break;
 
 		default:
@@ -123,6 +124,9 @@ bool InputHandler::keyReleased(const OIS::KeyEvent &arg)
 
 bool InputHandler::mouseMoved(const OIS::MouseEvent& arg)
 {
+	mViewRotation = mViewRotation * Common::Quaternion::fromAxisAngle(Common::Vector3(1, 0, 0), arg.state.X.rel * 0.01f) *
+		Common::Quaternion::fromAxisAngle(Common::Vector3(0, 1, 0), arg.state.Y.rel * 0.01f);
+
 	return true;
 }
 
@@ -140,4 +144,10 @@ ViewSetting InputHandler::getCurrentViewSetting() const
 {
 	return mViewSetting;
 }
+
+const Common::Quaternion& InputHandler::getViewRotation() const
+{
+	return mViewRotation;
+}
+
 

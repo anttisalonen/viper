@@ -1,15 +1,17 @@
 #include <string.h>
 #include <stdexcept>
 
-#include "common/Math.h"
-
 #include "Plane.h"
 #include "Missile.h"
+#include "Game.h"
 
 #include "PlaneController.h"
 
-Plane::Plane(const Common::Vector3& pos)
-	: VisibleEntity(pos, Common::Quaternion(0, 0, 0, 1))
+#include "common/Math.h"
+
+Plane::Plane(Game* g, const Common::Vector3& pos)
+	: VisibleEntity(pos, Common::Quaternion(0, 0, 0, 1)),
+	mGame(g)
 {
 	memset(mRotationTargetVelocities, 0x00, sizeof(mRotationTargetVelocities));
 	mVelocity = Common::Vector3(0, 0, 10);
@@ -35,6 +37,17 @@ void Plane::update(float t)
 	if(mController)
 		mController->update(t);
 
+	if(mTargetUpdateTimer.countdownAndRewind(t)) {
+		mTarget = nullptr;
+		auto planes = mGame->getPlanes();
+		for(auto p : planes) {
+			if(p != this) {
+				mTarget = p;
+				break;
+			}
+		}
+	}
+
 	checkShooting();
 }
 
@@ -59,7 +72,7 @@ void Plane::checkShooting()
 		mShooting = false;
 		if(!mMissiles.empty()) {
 			auto mit = mMissiles.rbegin();
-			(*mit)->shoot();
+			(*mit)->shoot(mTarget);
 			mMissiles.pop_back();
 		}
 	}

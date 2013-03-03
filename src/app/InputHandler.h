@@ -3,6 +3,8 @@
 
 #include <OIS.h>
 
+#include "common/Quaternion.h"
+
 #include "PlaneController.h"
 
 enum class ViewSetting {
@@ -22,6 +24,7 @@ class InputHandler : public PlaneController, public OIS::KeyListener, public OIS
 		bool mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID button);
 		bool mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID button);
 		ViewSetting getCurrentViewSetting() const;
+		const Common::Quaternion& getViewRotation() const;
 
 	private:
 		float mPitch = 0.0f;
@@ -30,6 +33,7 @@ class InputHandler : public PlaneController, public OIS::KeyListener, public OIS
 		bool mRunning = true;
 		bool mShooting = false;
 		ViewSetting mViewSetting = ViewSetting::Cockpit;
+		Common::Quaternion mViewRotation;
 };
 
 #endif

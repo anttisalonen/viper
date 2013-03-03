@@ -7,12 +7,13 @@
 #include "Entity.h"
 
 class Plane;
+class Game;
 
 class Missile : public VisibleEntity {
 	public:
 		Missile(const Plane* plane);
 		void update(float t);
-		void shoot();
+		void shoot(Plane* tgt);
 		virtual const char* getType() const override;
 		void setOffset(const Common::Vector3& offset);
 		bool outOfFuel() const;
@@ -20,6 +21,7 @@ class Missile : public VisibleEntity {
 
 	private:
 		const Plane* mPlane;
+		Plane* mTarget = nullptr;
 		Common::Vector3 mOffset;
 		float mFuelTime;
 };
