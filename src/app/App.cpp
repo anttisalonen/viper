@@ -119,7 +119,7 @@ void App::setupScene()
 	sun->setType(Ogre::Light::LT_DIRECTIONAL);
 	sun->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
 	sun->setSpecularColour(Ogre::ColourValue(1, 1, 1));
-	sun->setDirection(-1, -0.2, 0);
+	sun->setDirection(0, -1, 0);
 
 
 	// Define a plane mesh that will be used for the ocean surface

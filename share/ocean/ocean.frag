@@ -23,10 +23,10 @@ void main(void)
 	vec3 noiseValue1 = texture2D(Noise, uvw.xy).xyz;
 	vec3 noiseValue2 = texture2D(Noise2, uvw.xy).xyz;
 	float noisePoint = uvw.z;
-	vec3 noisy = noisePoint * noiseValue1 - ((1.0 - noisePoint) * noiseValue2);
+	vec3 noisy = noisePoint * noiseValue1 + noisePoint * noiseValue2;
 
 	// convert to signed noise
-	vec3 bump = 2.0 * noisy - 1.0;
+	vec3 bump = noisy - 1.0;
 	bump.xz *= 0.15;
 	// Make sure the normal always points upwards
 	// note that Ogres y axis is vertical (RM Z axis is vertical)
