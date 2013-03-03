@@ -111,7 +111,6 @@ bool App::checkWindowResize()
 
 void App::setupScene()
 {
-	// based on OceanDemo
 	// Set ambient light
 	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
 	mSceneMgr->setSkyBox(true, "SkyBox", 1000);

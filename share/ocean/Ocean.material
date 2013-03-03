@@ -1,6 +1,6 @@
 vertex_program GLSL/OceanVS glsl
 {
-	source oceanGLSL.vert
+	source ocean.vert
 
 	default_params
 	{
@@ -12,12 +12,13 @@ vertex_program GLSL/OceanVS glsl
 
 fragment_program GLSL/OceanFS glsl
 {
-	source oceanGLSL.frag
+	source ocean.frag
 
 	default_params
 	{
 		param_named Noise int 0
-		param_named skyBox int 1
+		param_named Noise2 int 1
+		param_named skyBox int 2
 	}
 }
 
@@ -42,7 +43,7 @@ material OceanSurface
 
 			texture_unit
 			{
-				texture NoiseVolume.dds 3d
+				texture NoiseVolume.png 2d
 				tex_coord_set 0
 				filtering linear linear none
 				tex_address_mode wrap
@@ -50,7 +51,15 @@ material OceanSurface
 
 			texture_unit
 			{
-				cubic_texture morning.jpg combinedUVW
+				texture NoiseVolume2.png 2d
+				tex_coord_set 0
+				filtering linear linear none
+				tex_address_mode wrap
+			}
+
+			texture_unit
+			{
+				cubic_texture teide.jpg combinedUVW
 				tex_address_mode clamp
 				tex_coord_set 1
 			}
@@ -73,7 +82,7 @@ material SkyBox
 
 			texture_unit
 			{
-				cubic_texture morning.jpg separateUV
+				cubic_texture teide.jpg separateUV
 				tex_address_mode clamp
 			}
 		}

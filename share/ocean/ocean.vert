@@ -19,14 +19,13 @@ varying vec3 vVec;
 
 void main(void)
 {
-   gl_Position = ftransform();
-   
-   //  the view vector needs to be in vertex space
-   vVec = gl_Vertex.xyz - eyePosition;
-   normal = gl_Normal;
-   // uvw is the calculated uvw coordinates based on vertex position
-   uvw = gl_Vertex.xyz * scale.xyz;
-   uvw.xz += waveSpeed * time_0_X;
-   uvw.y += uvw.z + noiseSpeed * time_0_X;
-   
+	gl_Position = ftransform();
+
+	//  the view vector needs to be in vertex space
+	vVec = gl_Vertex.xyz - eyePosition;
+	normal = gl_Normal;
+	// uvw is the calculated uvw coordinates based on vertex position
+	uvw = gl_Vertex.xyz * scale.xyz;
+	uvw.xz += waveSpeed * time_0_X;
+	uvw.y += uvw.z + noiseSpeed * time_0_X;
 }
