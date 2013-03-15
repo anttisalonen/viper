@@ -5,7 +5,7 @@
 #include "common/Math.h"
 
 Missile::Missile(const Plane* plane)
-	: VisibleEntity(plane->getPosition(), plane->getRotation()),
+	: VisibleEntity(plane->getPosition(), plane->getRotation(), 1.0f),
 	mPlane(plane),
 	mFuelTime(10.0f)
 {
@@ -33,6 +33,14 @@ void Missile::update(float t)
 		}
 
 		VisibleEntity::update(t);
+
+		/* only check collision against target - very crude for now
+		 * (ignore tunneling, spheres as objects) */
+		if(collidesWith(*mTarget)) {
+			mTarget->destroy();
+			mTarget = nullptr;
+			mFuelTime = 0.0f;
+		}
 	}
 }
 
@@ -54,7 +62,7 @@ void Missile::setOffset(const Common::Vector3& offset)
 
 bool Missile::outOfFuel() const
 {
-	return mFuelTime < 0.0f;
+	return mFuelTime <= 0.0f;
 }
 
 bool Missile::attached() const

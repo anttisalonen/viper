@@ -14,6 +14,7 @@ class InputHandler;
 class Game;
 class VisibleEntity;
 class Missile;
+class Plane;
 
 class App {
 	public:
@@ -22,6 +23,7 @@ class App {
 		void go();
 		void updateEntity(const VisibleEntity* p);
 		void removeEntity(const VisibleEntity* p);
+		void updatePlane(const Plane* p);
 		void updateMissile(const Missile* m);
 		void removeMissile(const Missile* m);
 		void setCamera(const Common::Vector3& offset,
@@ -35,6 +37,7 @@ class App {
 		void initInput();
 		bool checkWindowResize();
 		void setupScene();
+		void checkAddParticleSystem(const VisibleEntity* m, const char* type);
 
 		Ogre::Root* mRoot = nullptr;
 		Ogre::RenderWindow* mWindow = nullptr;
@@ -59,10 +62,10 @@ class App {
 		Common::Clock mFPSTimer;
 
 		std::map<const VisibleEntity*, Ogre::Entity*> mEntities;
-		std::map<const Missile*, Ogre::ParticleSystem*> mMissileEngines;
+		std::map<const VisibleEntity*, Ogre::ParticleSystem*> mParticleSystems;
 
 		unsigned int mNumEntities = 0;
-		unsigned int mNumMissileEngines = 0;
+		unsigned int mNumParticleSystems = 0;
 };
 
 #endif

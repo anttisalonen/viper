@@ -70,6 +70,14 @@ bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
 			mShooting = true;
 			break;
 
+		case OIS::KC_V:
+			{
+				float roll, pitch, yaw;
+				mPlane->getRotation().toEuler(roll, pitch, yaw);
+				std::cout << roll << " " << pitch << " " << yaw << "\n";
+			}
+			break;
+
 		case OIS::KC_C:
 			switch(mViewSetting) {
 				case ViewSetting::Cockpit:

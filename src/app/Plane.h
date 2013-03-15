@@ -15,12 +15,14 @@ class Game;
 
 class Plane : public VisibleEntity {
 	public:
-		Plane(Game* g, const Common::Vector3& pos);
+		Plane(Game* g, const Common::Vector3& pos, const Common::Quaternion& q = Common::Quaternion(0, 0, 0, 1));
 		virtual void update(float t) override;
 		void setTargetVelocity(PrincipalAxis a, float v);
 		void setController(PlaneController* p);
 		void shoot();
 		void addMissile(Missile* m);
+		void destroy();
+		bool isDestroyed() const;
 		virtual const char* getType() const override;
 
 	private:
@@ -33,6 +35,7 @@ class Plane : public VisibleEntity {
 		std::vector<Missile*> mMissiles;
 		Plane* mTarget = nullptr;
 		Common::Countdown mTargetUpdateTimer = Common::Countdown(0.1f);
+		bool mDestroyed = false;
 };
 
 #endif

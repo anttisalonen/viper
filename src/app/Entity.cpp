@@ -3,9 +3,10 @@
 #include "Entity.h"
 
 VisibleEntity::VisibleEntity(const Common::Vector3& v,
-		const Common::Quaternion& q)
+		const Common::Quaternion& q, float radius)
 	: mPosition(v),
-	mRotation(q)
+	mRotation(q),
+	mRadius(radius)
 {
 	memset(mRotationVelocities, 0x00, sizeof(mRotationVelocities));
 }
@@ -42,6 +43,23 @@ void VisibleEntity::update(float t)
 	}
 	mRotation = mRotation * rot;
 	mRotation = mRotation.versor();
+}
+
+float VisibleEntity::getRadius() const
+{
+	return mRadius;
+}
+
+bool VisibleEntity::collidesWith(const VisibleEntity& e) const
+{
+	float dist2 = (getPosition() - e.getPosition()).length2();
+	float rr = e.getRadius() + getRadius();
+	rr = rr * rr;
+	if(rr > dist2) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 

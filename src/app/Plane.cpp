@@ -9,8 +9,8 @@
 
 #include "common/Math.h"
 
-Plane::Plane(Game* g, const Common::Vector3& pos)
-	: VisibleEntity(pos, Common::Quaternion(0, 0, 0, 1)),
+Plane::Plane(Game* g, const Common::Vector3& pos, const Common::Quaternion& q)
+	: VisibleEntity(pos, q, 10.0f),
 	mGame(g)
 {
 	memset(mRotationTargetVelocities, 0x00, sizeof(mRotationTargetVelocities));
@@ -19,14 +19,23 @@ Plane::Plane(Game* g, const Common::Vector3& pos)
 
 void Plane::update(float t)
 {
-	// update rotation velocity
-	Common::Quaternion rot(0, 0, 0, 1);
-	for(int i = 0; i < 3; i++) {
-		static const float coefficients[3] = { 5.0f, 2.0f, 5.0f };
-		float diff = mRotationTargetVelocities[i] - mRotationVelocities[i];
-		float acc = Common::clamp(-1.0f, diff * 0.5f, 1.0f);
-		float updatedV = mRotationVelocities[i] + acc * t * coefficients[i];
-		mRotationVelocities[i] = Common::clamp(-1.0f, updatedV, 1.0f);
+	if(mDestroyed) {
+		Common::Quaternion tgtRot = Common::Quaternion(sqrt(0.5), 0, 0, sqrt(0.5));
+		mRotation = mRotation.slerp(tgtRot,
+				Common::clamp(0.0f, 0.3f * t, 1.0f));
+		mRotationVelocities[0] = 0.0f;
+		mRotationVelocities[1] = 0.0f;
+		mRotationVelocities[2] = 0.3f;
+	} else {
+		// update rotation velocity
+		Common::Quaternion rot(0, 0, 0, 1);
+		for(int i = 0; i < 3; i++) {
+			static const float coefficients[3] = { 5.0f, 2.0f, 5.0f };
+			float diff = mRotationTargetVelocities[i] - mRotationVelocities[i];
+			float acc = Common::clamp(-1.0f, diff * 0.5f, 1.0f);
+			float updatedV = mRotationVelocities[i] + acc * t * coefficients[i];
+			mRotationVelocities[i] = Common::clamp(-1.0f, updatedV, 1.0f);
+		}
 	}
 
 	// update velocity
@@ -63,7 +72,8 @@ void Plane::setController(PlaneController* p)
 
 void Plane::shoot()
 {
-	mShooting = true;
+	if(!mDestroyed)
+		mShooting = true;
 }
 
 void Plane::checkShooting()
@@ -94,6 +104,16 @@ void Plane::addMissile(Missile* m)
 	}
 	m->setOffset(offset);
 	mMissiles.push_back(m);
+}
+
+void Plane::destroy()
+{
+	mDestroyed = true;
+}
+
+bool Plane::isDestroyed() const
+{
+	return mDestroyed;
 }
 
 const char* Plane::getType() const

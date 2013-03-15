@@ -4,6 +4,7 @@
 #include <Ogre.h>
 
 #include "common/Vector3.h"
+#include "common/Quaternion.h"
 
 class App;
 class InputHandler;
@@ -18,7 +19,7 @@ class Game {
 		std::list<Plane*>& getPlanes();
 
 	private:
-		Plane* addPlane(const Common::Vector3& pos);
+		Plane* addPlane(const Common::Vector3& pos, const Common::Quaternion& q);
 
 		App* mApp;
 		InputHandler* mInputHandler;

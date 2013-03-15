@@ -18,18 +18,21 @@ enum class PrincipalAxis {
 class VisibleEntity : public Entity {
 	public:
 		VisibleEntity(const Common::Vector3& v,
-				const Common::Quaternion& q);
+				const Common::Quaternion& q, float radius);
 		virtual void update(float t);
 		const Common::Vector3& getPosition() const;
 		const Common::Quaternion& getRotation() const;
 		const Common::Vector3& getVelocity() const;
-		virtual const char* getType() const = 0;
+		virtual const char* getType() const = 0; // which mesh to use
+		bool collidesWith(const VisibleEntity& e) const;
+		virtual float getRadius() const; // collision detection
 
 	protected:
 		Common::Vector3 mPosition;
 		Common::Quaternion mRotation;
 		Common::Vector3 mVelocity;
 		float mRotationVelocities[3];
+		float mRadius;
 };
 
 

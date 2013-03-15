@@ -4,6 +4,7 @@
 #include "Game.h"
 #include "Entity.h"
 #include "Missile.h"
+#include "Plane.h"
 
 #define APP_RESOURCE_NAME "Resources"
 
@@ -197,14 +198,57 @@ void App::updateEntity(const VisibleEntity* p)
 
 void App::removeEntity(const VisibleEntity* p)
 {
-	auto it = mEntities.find(p);
-	if(it != mEntities.end()) {
-		Ogre::Entity* e = it->second;
-		auto n = e->getParentSceneNode();
-		e->detachFromParent();
-		mSceneMgr->destroyEntity(e);
-		mSceneMgr->destroySceneNode(n);
-		mEntities.erase(it);
+	{
+		auto it = mParticleSystems.find(p);
+		if(it != mParticleSystems.end()) {
+			Ogre::ParticleSystem* ps = it->second;
+			ps->detachFromParent();
+			mSceneMgr->destroyParticleSystem(ps);
+			mParticleSystems.erase(it);
+		}
+	}
+
+	{
+		auto it = mEntities.find(p);
+		if(it != mEntities.end()) {
+			Ogre::Entity* e = it->second;
+			auto n = e->getParentSceneNode();
+			e->detachFromParent();
+			mSceneMgr->destroyEntity(e);
+			mSceneMgr->destroySceneNode(n);
+			mEntities.erase(it);
+		}
+	}
+}
+
+void App::updatePlane(const Plane* p)
+{
+	updateEntity(p);
+
+	if(p->isDestroyed()) {
+		checkAddParticleSystem(p, "DestroyedPlane");
+	}
+}
+
+void App::checkAddParticleSystem(const VisibleEntity* m, const char* type)
+{
+	Ogre::SceneNode* n;
+	auto eit = mEntities.find(m);
+	assert(eit != mEntities.end());
+	n = eit->second->getParentSceneNode();
+
+	Ogre::ParticleSystem* ps;
+	auto it = mParticleSystems.find(m);
+
+	if(it == mParticleSystems.end()) {
+		char instancename[256];
+		snprintf(instancename, 255, "ParticleSystem %4d", ++mNumParticleSystems);
+		ps = mSceneMgr->createParticleSystem(instancename, type);
+		n->attachObject(ps);
+
+		mParticleSystems.insert({m, ps});
+	} else {
+		ps = it->second;
 	}
 }
 
@@ -212,37 +256,12 @@ void App::updateMissile(const Missile* m)
 {
 	updateEntity(m);
 	if(!m->attached()) {
-		Ogre::SceneNode* n;
-		auto eit = mEntities.find(m);
-		assert(eit != mEntities.end());
-		n = eit->second->getParentSceneNode();
-
-		Ogre::ParticleSystem* ps;
-		auto it = mMissileEngines.find(m);
-
-		if(it == mMissileEngines.end()) {
-			char instancename[256];
-			snprintf(instancename, 255, "MissileEngine %4d", ++mNumMissileEngines);
-			ps = mSceneMgr->createParticleSystem(instancename, "MissileEngine");
-			n->attachObject(ps);
-
-			mMissileEngines.insert({m, ps});
-		} else {
-			ps = it->second;
-		}
+		checkAddParticleSystem(m, "MissileEngine");
 	}
 }
 
 void App::removeMissile(const Missile* m)
 {
-	auto it = mMissileEngines.find(m);
-	if(it != mMissileEngines.end()) {
-		Ogre::ParticleSystem* ps = it->second;
-		ps->detachFromParent();
-		mSceneMgr->destroyParticleSystem(ps);
-		mMissileEngines.erase(it);
-	}
-
 	removeEntity(m);
 }
 

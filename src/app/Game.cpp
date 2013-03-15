@@ -11,18 +11,18 @@ Game::Game(App* app, InputHandler* ih)
 	: mApp(app),
 	mInputHandler(ih)
 {
-	Plane* p = addPlane(Common::Vector3(20, 25, 50));
+	Plane* p = addPlane(Common::Vector3(20, 25, -250), Common::Quaternion(0, 0, 0, 1));
 	p->setController(mInputHandler);
 	mInputHandler->setPlane(p);
 
 	mTrackingPlane = p;
 
-	addPlane(Common::Vector3(20, 55, 60));
+	addPlane(Common::Vector3(20, 55, 260), Common::Quaternion(0, 1, 0, 0));
 }
 
-Plane* Game::addPlane(const Common::Vector3& pos)
+Plane* Game::addPlane(const Common::Vector3& pos, const Common::Quaternion& q)
 {
-	Plane* p = new Plane(this, pos);
+	Plane* p = new Plane(this, pos, q);
 	mPlanes.push_back(p);
 	for(unsigned int i = 0; i < 2; i++) {
 		Missile* m = new Missile(p);
@@ -50,7 +50,15 @@ bool Game::update(float frameTime)
 {
 	for(auto p : mPlanes) {
 		p->update(frameTime);
-		mApp->updateEntity(p);
+		mApp->updatePlane(p);
+
+		/* brute force O(n^2) collision detection between planes for now */
+		for(auto p2 : mPlanes) {
+			if(p != p2 && p->collidesWith(*p2)) {
+				p->destroy();
+				p2->destroy();
+			}
+		}
 	}
 
 	for(auto mit = mMissiles.begin(); mit != mMissiles.end(); ) {

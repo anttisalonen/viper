@@ -1,8 +1,30 @@
 particle_system MissileEngine
 {
     material MissileEngine
-    particle_width 5
-    particle_height 5
+    particle_width 10
+    particle_height 10
+    cull_each false
+    quota 10000
+    billboard_type oriented_self
+
+    // Area emitter
+    emitter Point
+    {
+        angle 30
+        emission_rate 100
+        time_to_live 0.2
+        direction 0 0 -1
+        velocity_min 25
+        velocity_max 30
+        colour 0.1 0.1 0.1 1.0
+    }
+}
+
+particle_system DestroyedPlane
+{
+    material MissileEngine
+    particle_width 10
+    particle_height 10
     cull_each false
     quota 10000
     billboard_type oriented_self
@@ -12,9 +34,9 @@ particle_system MissileEngine
     {
         angle 75
         emission_rate 75
-        time_to_live 0.2
+        time_to_live 0.3
         direction 0 0 -1
-        velocity_min 25
+        velocity_min 10
         velocity_max 30
         colour_range_start 1 0 0
         colour_range_end 1 1 0
@@ -28,4 +50,5 @@ particle_system MissileEngine
         blue -0.25
     }
 }
+
 
