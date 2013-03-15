@@ -26,7 +26,7 @@ void Missile::update(float t)
 
 		if(mTarget) {
 			Common::Quaternion tgtRotation =
-				Common::Quaternion::getRotationTo(mVelocity,
+				Common::Quaternion::getRotationTo(Common::Vector3(0, 0, 1),
 						mTarget->getPosition() - getPosition());
 			mRotation = mRotation.slerp(tgtRotation, Common::clamp(0.0f, 3.0f * t, 1.0f));
 			mVelocity = Common::Math::rotate3D(Common::Vector3(0, 0, 1), mRotation) * mVelocity.length();
