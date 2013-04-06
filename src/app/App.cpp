@@ -61,6 +61,7 @@ App::App()
 void App::initResources()
 {
 	Ogre::ResourceGroupManager::getSingleton().createResourceGroup(APP_RESOURCE_NAME);
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/terrain", "FileSystem", APP_RESOURCE_NAME, false);
 	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/ocean", "FileSystem", APP_RESOURCE_NAME, false);
 	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/aircraft", "FileSystem", APP_RESOURCE_NAME, false);
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(APP_RESOURCE_NAME);
@@ -139,6 +140,32 @@ void App::setupScene()
 	mCamNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("CameraNode");
 	mCamNode->attachObject(mCamera);
 	mCamera->moveRelative(Ogre::Vector3(0, 5, -20));
+
+	setupTerrain();
+}
+
+void App::setupTerrain()
+{
+	Ogre::ManualObject* obj = mSceneMgr->createManualObject("Terrain");
+	obj->setDynamic(false);
+	obj->begin("Terrain", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+
+	unsigned int ii = 0;
+	const float scale = 10.0f;
+	const float offset = -scale * 128.0f;
+	for(unsigned int i = 0; i < 255; i++) {
+		for(unsigned int j = 0; j < 255; j++) {
+			obj->position(offset + scale * i,       2.5f, offset + scale * j);
+			obj->position(offset + scale * i,       2.5f, offset + scale * (j + 1));
+			obj->position(offset + scale * (i + 1), 2.5f, offset + scale * (j + 1));
+			obj->position(offset + scale * (i + 1), 2.5f, offset + scale * j);
+			obj->quad(ii, ii + 1, ii + 2, ii + 3);
+			ii += 4;
+		}
+	}
+
+	obj->end();
+	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(obj);
 }
 
 App::~App()

@@ -37,6 +37,7 @@ class App {
 		void initInput();
 		bool checkWindowResize();
 		void setupScene();
+		void setupTerrain();
 		void checkAddParticleSystem(const VisibleEntity* m, const char* type);
 
 		Ogre::Root* mRoot = nullptr;
