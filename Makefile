@@ -16,6 +16,8 @@ OGRE_LDFLAGS ?= $(shell pkg-config --libs OGRE)
 LDFLAGS  += $(OGRE_LDFLAGS)
 LDFLAGS  += $(shell pkg-config --libs OIS)
 LDFLAGS  += -lboost_system
+LDFLAGS  += -lnoise
+LDFLAGS  += -ljsoncpp
 
 
 BINDIR  = bin
@@ -24,7 +26,7 @@ BIN     = $(BINDIR)/$(BINNAME)
 
 SRCDIR = src/app
 
-SRCFILES = Entity.cpp Missile.cpp Plane.cpp Game.cpp InputHandler.cpp App.cpp main.cpp
+SRCFILES = Constants.cpp Entity.cpp Missile.cpp Plane.cpp Game.cpp InputHandler.cpp App.cpp main.cpp
 
 SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
 OBJS = $(SRCS:.cpp=.o)

@@ -1,0 +1,8 @@
+{
+	"directional_light" : [0, -1, 0],
+	"terrain_texture_scale" : 0.001,
+	"terrain_height_scale" : 100.0,
+	"terrain_height_offset" : 40.0,
+	"terrain_tiles" : 16,
+	"shadows" : false
+}

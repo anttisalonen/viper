@@ -1,3 +1,5 @@
+#include <noise/noise.h>
+
 #include "App.h"
 
 #include "InputHandler.h"
@@ -9,6 +11,7 @@
 #define APP_RESOURCE_NAME "Resources"
 
 App::App()
+	: mConstants("share/config/constants.json")
 {
 	mRoot = new Ogre::Root("", "", "");
 	mRoot->loadPlugin(OGRE_PLUGIN_DIR "/RenderSystem_GL");
@@ -35,6 +38,8 @@ App::App()
 			throw std::runtime_error("Could not create the render window.\n");
 		}
 		mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
+		if(mConstants.getBool("shadows"))
+			mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
 		mRootNode = mSceneMgr->getRootSceneNode();
 		mCamera = mSceneMgr->createCamera("Camera");
 		mViewport = mWindow->addViewport(mCamera);
@@ -121,7 +126,8 @@ void App::setupScene()
 	sun->setType(Ogre::Light::LT_DIRECTIONAL);
 	sun->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
 	sun->setSpecularColour(Ogre::ColourValue(1, 1, 1));
-	sun->setDirection(0, -1, 0);
+	auto sunLightDirection = mConstants.getVector3("directional_light");
+	sun->setDirection(sunLightDirection.x, sunLightDirection.y, sunLightDirection.z);
 
 
 	// Define a plane mesh that will be used for the ocean surface
@@ -131,10 +137,11 @@ void App::setupScene()
 	Ogre::MeshManager::getSingleton().createPlane("OceanSurface",
 			APP_RESOURCE_NAME,
 			oceanSurface,
-			1000, 1000, 50, 50, true, 1, 1, 1, Ogre::Vector3::UNIT_Z);
+			10000, 10000, 50, 50, true, 1, 1, 1, Ogre::Vector3::UNIT_Z);
 
 	mOceanSurfaceEnt = mSceneMgr->createEntity("OceanSurface", "OceanSurface");
 	mOceanSurfaceEnt->setMaterialName("OceanSurface");
+	mOceanSurfaceEnt->setCastShadows(false);
 	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(mOceanSurfaceEnt);
 
 	mCamNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("CameraNode");
@@ -146,26 +153,81 @@ void App::setupScene()
 
 void App::setupTerrain()
 {
-	Ogre::ManualObject* obj = mSceneMgr->createManualObject("Terrain");
-	obj->setDynamic(false);
-	obj->begin("Terrain", Ogre::RenderOperation::OT_TRIANGLE_LIST);
-
-	unsigned int ii = 0;
+	int terrainNum = 1;
 	const float scale = 10.0f;
-	const float offset = -scale * 128.0f;
-	for(unsigned int i = 0; i < 255; i++) {
-		for(unsigned int j = 0; j < 255; j++) {
-			obj->position(offset + scale * i,       2.5f, offset + scale * j);
-			obj->position(offset + scale * i,       2.5f, offset + scale * (j + 1));
-			obj->position(offset + scale * (i + 1), 2.5f, offset + scale * (j + 1));
-			obj->position(offset + scale * (i + 1), 2.5f, offset + scale * j);
-			obj->quad(ii, ii + 1, ii + 2, ii + 3);
-			ii += 4;
+	const unsigned int numTiles = mConstants.getUInt("terrain_tiles");
+	const unsigned int numPlates = 16;
+	const float offset = scale * numTiles;
+	const float terrainTextureScale = mConstants.getFloat("terrain_texture_scale");
+
+	for(int x = 0; x < numPlates; x++) {
+		for(int y = 0; y < numPlates; y++) {
+			char terrainName[32];
+			sprintf(terrainName, "Terrain %d", terrainNum);
+			Ogre::ManualObject* obj = mSceneMgr->createManualObject(terrainName);
+			obj->setDynamic(false);
+			obj->begin("Terrain", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+
+			unsigned int ii = 0;
+			const float offsetx = offset * (x - numPlates / 2);
+			const float offsety = offset * (y - numPlates / 2);
+
+			for(unsigned int i = 0; i < numTiles; i++) {
+				for(unsigned int j = 0; j < numTiles; j++) {
+					/*		x1 - 1	x1	x2	x1 + 1
+					 * y1 - 1		U1	U2
+					 * y1		L1	z1	z4	R1
+					 * y2		L2	z2	z3	R2
+					 * y2 + 1		D1	D2
+					 *
+					 * finite difference method */
+					float x1 = offsetx + scale * i;
+					float x2 = offsetx + scale * (i + 1);
+					float y1 = offsety + scale * j;
+					float y2 = offsety + scale * (j + 1);
+					float z1 = getTerrainHeightAt(x1, y1);
+					float z2 = getTerrainHeightAt(x1, y2);
+					float z3 = getTerrainHeightAt(x2, y2);
+					float z4 = getTerrainHeightAt(x2, y1);
+					float zL1 = getTerrainHeightAt(x1 - scale, y1);
+					float zL2 = getTerrainHeightAt(x1 - scale, y2);
+					float zR1 = getTerrainHeightAt(x2 + scale, y1);
+					float zR2 = getTerrainHeightAt(x2 + scale, y2);
+					float zU1 = getTerrainHeightAt(x1, y1 - scale);
+					float zU2 = getTerrainHeightAt(x2, y1 - scale);
+					float zD1 = getTerrainHeightAt(x1, y2 + scale);
+					float zD2 = getTerrainHeightAt(x2, y2 + scale);
+					Ogre::Vector3 n1(zL1 - z4, 2.0, zU1 - z2); n1.normalise();
+					Ogre::Vector3 n2(zL2 - z3, 2.0, z1 - zD1); n2.normalise();
+					Ogre::Vector3 n3(z2 - zR2, 2.0, z4 - zD2); n3.normalise();
+					Ogre::Vector3 n4(z1 - zR1, 2.0, zU2 - z3); n4.normalise();
+					float fx1 = fmod(x1 * terrainTextureScale, 1.0f);
+					float fx2 = fmod(x2 * terrainTextureScale, 1.0f);
+					float fy1 = fmod(y1 * terrainTextureScale, 1.0f);
+					float fy2 = fmod(y2 * terrainTextureScale, 1.0f);
+					obj->position(x1, z1, y1); obj->normal(n1); obj->textureCoord(fx1, fy1);
+					obj->position(x1, z2, y2); obj->normal(n2); obj->textureCoord(fx1, fy2);
+					obj->position(x2, z3, y2); obj->normal(n3); obj->textureCoord(fx2, fy2);
+					obj->position(x2, z4, y1); obj->normal(n4); obj->textureCoord(fx2, fy1);
+					obj->quad(ii, ii + 1, ii + 2, ii + 3);
+					ii += 4;
+				}
+			}
+
+			obj->end();
+			mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(obj);
+
+			terrainNum++;
 		}
 	}
+}
 
-	obj->end();
-	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(obj);
+float App::getTerrainHeightAt(float x, float y) const
+{
+	static noise::module::Perlin perlin;
+	static float scale = mConstants.getFloat("terrain_height_scale");
+	static float offset = mConstants.getFloat("terrain_height_offset");
+	return offset + scale * perlin.GetValue(x * 0.001f, y * 0.001f, 0.0f);
 }
 
 App::~App()

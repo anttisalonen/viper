@@ -1,16 +1,16 @@
 material Terrain
 {
-    technique
-    {
-        pass
-        {
-            lighting on
-
-            ambient 0.8 0.1 0.1 1
-            diffuse 0.8 0.05 0.05 1
-            emissive 0 0 0 1
-        }
-    }
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture terrain.png
+				tex_address_mode wrap
+			}
+		}
+	}
 }
 
 

@@ -11,13 +11,13 @@ Game::Game(App* app, InputHandler* ih)
 	: mApp(app),
 	mInputHandler(ih)
 {
-	Plane* p = addPlane(Common::Vector3(20, 25, -250), Common::Quaternion(0, 0, 0, 1));
+	Plane* p = addPlane(Common::Vector3(200, 250, 50), Common::Quaternion(0, 0, 0, 1));
 	p->setController(mInputHandler);
 	mInputHandler->setPlane(p);
 
 	mTrackingPlane = p;
 
-	addPlane(Common::Vector3(20, 55, 260), Common::Quaternion(0, 1, 0, 0));
+	addPlane(Common::Vector3(200, 280, 460), Common::Quaternion(0, 1, 0, 0));
 }
 
 Plane* Game::addPlane(const Common::Vector3& pos, const Common::Quaternion& q)

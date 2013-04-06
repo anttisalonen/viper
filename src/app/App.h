@@ -10,6 +10,8 @@
 #include "common/Vector3.h"
 #include "common/Quaternion.h"
 
+#include "Constants.h"
+
 class InputHandler;
 class Game;
 class VisibleEntity;
@@ -38,6 +40,8 @@ class App {
 		bool checkWindowResize();
 		void setupScene();
 		void setupTerrain();
+		void addTerrainPosition(Ogre::ManualObject* obj, float x, float y);
+		float getTerrainHeightAt(float x, float y) const;
 		void checkAddParticleSystem(const VisibleEntity* m, const char* type);
 
 		Ogre::Root* mRoot = nullptr;
@@ -67,6 +71,8 @@ class App {
 
 		unsigned int mNumEntities = 0;
 		unsigned int mNumParticleSystems = 0;
+
+		Constants mConstants;
 };
 
 #endif
