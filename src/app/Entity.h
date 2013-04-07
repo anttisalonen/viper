@@ -22,6 +22,7 @@ class VisibleEntity : public Entity {
 		virtual void update(float t);
 		const Common::Vector3& getPosition() const;
 		const Common::Quaternion& getRotation() const;
+		void setPosition(const Common::Vector3& v);
 		const Common::Vector3& getVelocity() const;
 		virtual const char* getType() const = 0; // which mesh to use
 		bool collidesWith(const VisibleEntity& e) const;

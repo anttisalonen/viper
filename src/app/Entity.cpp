@@ -26,6 +26,11 @@ const Common::Vector3& VisibleEntity::getVelocity() const
 	return mVelocity;
 }
 
+void VisibleEntity::setPosition(const Common::Vector3& v)
+{
+	mPosition = v;
+}
+
 void VisibleEntity::update(float t)
 {
 	// update position

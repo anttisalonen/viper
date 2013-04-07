@@ -25,7 +25,7 @@ Game::Game()
 
 	mTrackingPlane = p;
 
-	addPlane(Common::Vector3(200, 280, 460), Common::Quaternion(0, 1, 0, 0));
+	addPlane(Common::Vector3(200, 280, 460), Common::Quaternion(0, sqrt(2.0f) * 0.5f, 0, sqrt(2.0f) * 0.5f));
 }
 
 Game::~Game()
@@ -45,6 +45,8 @@ Game::~Game()
 	mInputHandler = nullptr;
 	delete mUserInterface;
 	mUserInterface = nullptr;
+	delete mTerrain;
+	mTerrain = nullptr;
 }
 
 void Game::go()
@@ -85,6 +87,16 @@ bool Game::update(float frameTime)
 			if(p != p2 && p->collidesWith(*p2)) {
 				p->destroy();
 				p2->destroy();
+			}
+		}
+
+		auto pos = p->getPosition();
+		float tHeight = std::max<float>(0.0f, mTerrain->getHeightAt(pos.x, pos.z));
+		float minHeight = tHeight + p->getRadius();
+		if(minHeight > pos.y) {
+			p->destroy();
+			if(tHeight > pos.y) {
+				p->setPosition(Common::Vector3(pos.x, tHeight, pos.z));
 			}
 		}
 	}
