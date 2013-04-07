@@ -5,23 +5,23 @@
 #include "common/Quaternion.h"
 
 #include "Entity.h"
+#include "Vehicle.h"
 
-class Plane;
 class Game;
 
 class Missile : public VisibleEntity {
 	public:
-		Missile(const Plane* plane);
+		Missile(const Vehicle* owner);
 		void update(float t);
-		void shoot(Plane* tgt);
+		void shoot(Vehicle* tgt);
 		virtual const char* getType() const override;
 		void setOffset(const Common::Vector3& offset);
 		bool outOfFuel() const;
 		bool attached() const;
 
 	private:
-		const Plane* mPlane;
-		Plane* mTarget = nullptr;
+		const Vehicle* mOwner;
+		Vehicle* mTarget = nullptr;
 		Common::Vector3 mOffset;
 		float mFuelTime;
 };

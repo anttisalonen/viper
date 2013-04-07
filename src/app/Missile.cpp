@@ -1,23 +1,22 @@
 #include "Missile.h"
-#include "Plane.h"
 #include "Game.h"
 
 #include "common/Math.h"
 
-Missile::Missile(const Plane* plane)
-	: VisibleEntity(plane->getPosition(), plane->getRotation(), 1.0f),
-	mPlane(plane),
+Missile::Missile(const Vehicle* owner)
+	: VisibleEntity(owner->getPosition(), owner->getRotation(), 1.0f),
+	mOwner(owner),
 	mFuelTime(10.0f)
 {
-	mVelocity = plane->getVelocity();
+	mVelocity = owner->getVelocity();
 }
 
 void Missile::update(float t)
 {
-	if(mPlane) {
-		mRotation = mPlane->getRotation();
-		mPosition = mPlane->getPosition() + Common::Math::rotate3D(mOffset, mRotation) * mOffset.length();
-		mVelocity = mPlane->getVelocity();
+	if(mOwner) {
+		mRotation = mOwner->getRotation();
+		mPosition = mOwner->getPosition() + Common::Math::rotate3D(mOffset, mRotation) * mOffset.length();
+		mVelocity = mOwner->getVelocity();
 	} else {
 		if(mVelocity.length() < 100.0f) {
 			mVelocity += mVelocity * 1.5f * t;
@@ -44,9 +43,9 @@ void Missile::update(float t)
 	}
 }
 
-void Missile::shoot(Plane* tgt)
+void Missile::shoot(Vehicle* tgt)
 {
-	mPlane = nullptr;
+	mOwner = nullptr;
 	mTarget = tgt;
 }
 
@@ -67,6 +66,6 @@ bool Missile::outOfFuel() const
 
 bool Missile::attached() const
 {
-	return mPlane != nullptr;
+	return mOwner != nullptr;
 }
 
