@@ -6,7 +6,6 @@
 #include <Ogre.h>
 #include <OIS.h>
 
-#include "common/Clock.h"
 #include "common/Vector3.h"
 #include "common/Quaternion.h"
 
@@ -20,9 +19,10 @@ class Plane;
 
 class App {
 	public:
-		App();
+		App(InputHandler* ih);
 		~App();
-		void go();
+		bool isClosed() const;
+		void renderOneFrame();
 		void updateEntity(const VisibleEntity* p);
 		void removeEntity(const VisibleEntity* p);
 		void updatePlane(const Plane* p);
@@ -36,7 +36,7 @@ class App {
 
 	private:
 		void initResources();
-		void initInput();
+		void initInput(InputHandler* ih);
 		bool checkWindowResize();
 		void setupScene();
 		void setupTerrain();
@@ -53,8 +53,6 @@ class App {
 		Ogre::Viewport* mViewport = nullptr;
 		Ogre::RaySceneQuery* mRaySceneQuery = nullptr;
 
-		Game* mGame = nullptr;
-		InputHandler* mInputHandler = nullptr;
 		OIS::InputManager* mInputManager = nullptr;
 		OIS::Keyboard* mKeyboard = nullptr;
 		OIS::Mouse* mMouse = nullptr;
@@ -63,8 +61,6 @@ class App {
 		unsigned int mWindowHeight = 0;
 
 		Ogre::Entity*         mOceanSurfaceEnt = nullptr;
-
-		Common::Clock mFPSTimer;
 
 		std::map<const VisibleEntity*, Ogre::Entity*> mEntities;
 		std::map<const VisibleEntity*, Ogre::ParticleSystem*> mParticleSystems;

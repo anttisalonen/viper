@@ -7,9 +7,9 @@
 
 #include "common/Math.h"
 
-Game::Game(App* app, InputHandler* ih)
-	: mApp(app),
-	mInputHandler(ih)
+Game::Game()
+	: mInputHandler(new InputHandler()),
+	mApp(new App(mInputHandler))
 {
 	Plane* p = addPlane(Common::Vector3(200, 250, 50), Common::Quaternion(0, 0, 0, 1));
 	p->setController(mInputHandler);
@@ -18,18 +18,6 @@ Game::Game(App* app, InputHandler* ih)
 	mTrackingPlane = p;
 
 	addPlane(Common::Vector3(200, 280, 460), Common::Quaternion(0, 1, 0, 0));
-}
-
-Plane* Game::addPlane(const Common::Vector3& pos, const Common::Quaternion& q)
-{
-	Plane* p = new Plane(this, pos, q);
-	mPlanes.push_back(p);
-	for(unsigned int i = 0; i < 2; i++) {
-		Missile* m = new Missile(p);
-		p->addMissile(m);
-		mMissiles.push_back(m);
-	}
-	return p;
 }
 
 Game::~Game()
@@ -44,6 +32,38 @@ Game::~Game()
 		delete p;
 	}
 	mMissiles.clear();
+
+	delete mInputHandler;
+	mInputHandler = nullptr;
+	delete mApp;
+	mApp = nullptr;
+}
+
+void Game::go()
+{
+	double prevTime = Common::Clock::getTime();
+	while(!mApp->isClosed()) {
+		mApp->renderOneFrame();
+		double thisTime = Common::Clock::getTime();
+		double diffTime = thisTime - prevTime;
+		prevTime = thisTime;
+		if(!update(diffTime)) {
+			break;
+		}
+		mFPSTimer.limitFPS(60, false);
+	}
+}
+
+Plane* Game::addPlane(const Common::Vector3& pos, const Common::Quaternion& q)
+{
+	Plane* p = new Plane(this, pos, q);
+	mPlanes.push_back(p);
+	for(unsigned int i = 0; i < 2; i++) {
+		Missile* m = new Missile(p);
+		p->addMissile(m);
+		mMissiles.push_back(m);
+	}
+	return p;
 }
 
 bool Game::update(float frameTime)

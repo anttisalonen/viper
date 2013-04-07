@@ -10,8 +10,8 @@
 
 #define APP_RESOURCE_NAME "Resources"
 
-App::App()
-	: mConstants("share/config/constants.json")
+App::App(InputHandler* ih)
+	: mConstants("share/graphics/config/constants.json")
 {
 	mRoot = new Ogre::Root("", "", "");
 	mRoot->loadPlugin(OGRE_PLUGIN_DIR "/RenderSystem_GL");
@@ -53,27 +53,24 @@ App::App()
 
 		initResources();
 
-		mInputHandler = new InputHandler();
-		initInput();
+		initInput(ih);
 
 		setupScene();
 		checkWindowResize();
-
-		mGame = new Game(this, mInputHandler);
 	}
 }
 
 void App::initResources()
 {
 	Ogre::ResourceGroupManager::getSingleton().createResourceGroup(APP_RESOURCE_NAME);
-	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/terrain", "FileSystem", APP_RESOURCE_NAME, false);
-	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/ocean", "FileSystem", APP_RESOURCE_NAME, false);
-	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/aircraft", "FileSystem", APP_RESOURCE_NAME, false);
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/graphics/aircraft", "FileSystem", APP_RESOURCE_NAME, false);
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/graphics/ocean", "FileSystem", APP_RESOURCE_NAME, false);
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/graphics/terrain", "FileSystem", APP_RESOURCE_NAME, false);
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(APP_RESOURCE_NAME);
 	Ogre::ResourceGroupManager::getSingleton().loadResourceGroup(APP_RESOURCE_NAME);
 }
 
-void App::initInput()
+void App::initInput(InputHandler* ih)
 {
 	size_t hWnd = 0;
 	mWindow->getCustomAttribute("WINDOW", &hWnd);
@@ -95,9 +92,9 @@ void App::initInput()
 #endif
 	mInputManager = OIS::InputManager::createInputSystem(pl);
 	mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject(OIS::OISKeyboard, true));
-	mKeyboard->setEventCallback(mInputHandler);
+	mKeyboard->setEventCallback(ih);
 	mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject(OIS::OISMouse, true));
-	mMouse->setEventCallback(mInputHandler);
+	mMouse->setEventCallback(ih);
 }
 
 bool App::checkWindowResize()
@@ -232,28 +229,22 @@ float App::getTerrainHeightAt(float x, float y) const
 
 App::~App()
 {
-	delete mGame;
-	delete mInputHandler;
 	delete mRoot;
 }
 
-void App::go()
+bool App::isClosed() const
 {
-	double prevTime = Common::Clock::getTime();
-	bool running = true;
-	while(running && !mWindow->isClosed()) {
+	return !mWindow || mWindow->isClosed();
+}
+
+void App::renderOneFrame()
+{
+	if(!isClosed()) {
 		mRoot->renderOneFrame();
 		checkWindowResize();
 		Ogre::WindowEventUtilities::messagePump();
 		mKeyboard->capture();
 		mMouse->capture();
-		double thisTime = Common::Clock::getTime();
-		double diffTime = thisTime - prevTime;
-		prevTime = thisTime;
-		if(!mGame->update(diffTime)) {
-			running = false;
-		}
-		mFPSTimer.limitFPS(60, false);
 	}
 }
 
