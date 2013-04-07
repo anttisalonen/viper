@@ -15,7 +15,7 @@ class InputHandler;
 class Game;
 class VisibleEntity;
 class Missile;
-class Plane;
+class Vehicle;
 class Terrain;
 
 class UserInterface {
@@ -26,7 +26,7 @@ class UserInterface {
 		void renderOneFrame();
 		void updateEntity(const VisibleEntity* p);
 		void removeEntity(const VisibleEntity* p);
-		void updatePlane(const Plane* p);
+		void updateVehicle(const Vehicle* p);
 		void updateMissile(const Missile* m);
 		void removeMissile(const Missile* m);
 		void setCamera(const Common::Vector3& offset,

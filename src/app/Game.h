@@ -9,6 +9,7 @@
 
 class UserInterface;
 class InputHandler;
+class Vehicle;
 class Plane;
 class Missile;
 class Terrain;
@@ -19,7 +20,7 @@ class Game {
 		~Game();
 		void go();
 		bool update(float frameTime);
-		std::list<Plane*>& getPlanes();
+		std::list<Vehicle*>& getVehicles();
 
 	private:
 		Plane* addPlane(const Common::Vector3& pos, const Common::Quaternion& q);
@@ -27,9 +28,9 @@ class Game {
 		InputHandler* mInputHandler;
 		UserInterface* mUserInterface;
 		Terrain* mTerrain;
-		std::list<Plane*> mPlanes;
+		std::list<Vehicle*> mVehicles;
 		std::list<Missile*> mMissiles;
-		Plane* mTrackingPlane;
+		Vehicle* mTrackingVehicle;
 
 		Common::Clock mFPSTimer;
 };

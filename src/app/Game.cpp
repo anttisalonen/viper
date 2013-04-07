@@ -23,18 +23,18 @@ Game::Game()
 	p->setController(mInputHandler);
 	mInputHandler->setPlane(p);
 
-	mTrackingPlane = p;
+	mTrackingVehicle = p;
 
 	addPlane(Common::Vector3(200, 280, 460), Common::Quaternion(0, sqrt(2.0f) * 0.5f, 0, sqrt(2.0f) * 0.5f));
 }
 
 Game::~Game()
 {
-	mTrackingPlane = nullptr;
-	for(auto p : mPlanes) {
+	mTrackingVehicle = nullptr;
+	for(auto p : mVehicles) {
 		delete p;
 	}
-	mPlanes.clear();
+	mVehicles.clear();
 
 	for(auto p : mMissiles) {
 		delete p;
@@ -67,7 +67,7 @@ void Game::go()
 Plane* Game::addPlane(const Common::Vector3& pos, const Common::Quaternion& q)
 {
 	Plane* p = new Plane(this, pos, q);
-	mPlanes.push_back(p);
+	mVehicles.push_back(p);
 	for(unsigned int i = 0; i < 2; i++) {
 		Missile* m = new Missile(p);
 		p->addMissile(m);
@@ -78,12 +78,12 @@ Plane* Game::addPlane(const Common::Vector3& pos, const Common::Quaternion& q)
 
 bool Game::update(float frameTime)
 {
-	for(auto p : mPlanes) {
+	for(auto p : mVehicles) {
 		p->update(frameTime);
-		mUserInterface->updatePlane(p);
+		mUserInterface->updateVehicle(p);
 
 		/* brute force O(n^2) collision detection between planes for now */
-		for(auto p2 : mPlanes) {
+		for(auto p2 : mVehicles) {
 			if(p != p2 && p->collidesWith(*p2)) {
 				p->destroy();
 				p2->destroy();
@@ -114,22 +114,22 @@ bool Game::update(float frameTime)
 		}
 	}
 
-	if(mTrackingPlane) {
+	if(mTrackingVehicle) {
 		switch(mInputHandler->getCurrentViewSetting()) {
 			case ViewSetting::Cockpit:
 				{
-					Common::Vector3 viewpoint = mTrackingPlane->getPosition() +
+					Common::Vector3 viewpoint = mTrackingVehicle->getPosition() +
 						Common::Math::rotate3D(Common::Vector3(0, 2, 5),
-								mTrackingPlane->getRotation()) * 5.0f;
-					mUserInterface->setCamera(viewpoint, mTrackingPlane->getRotation());
+								mTrackingVehicle->getRotation()) * 5.0f;
+					mUserInterface->setCamera(viewpoint, mTrackingVehicle->getRotation());
 				}
 				break;
 
 			case ViewSetting::Offset:
 				{
 					Common::Vector3 offset = Common::Vector3(0, 5, -30);
-					mUserInterface->setCamera(offset, mTrackingPlane->getPosition(),
-							mTrackingPlane->getRotation() *
+					mUserInterface->setCamera(offset, mTrackingVehicle->getPosition(),
+							mTrackingVehicle->getRotation() *
 							mInputHandler->getViewRotation());
 				}
 				break;
@@ -139,8 +139,8 @@ bool Game::update(float frameTime)
 	return mInputHandler->running();
 }
 
-std::list<Plane*>& Game::getPlanes()
+std::list<Vehicle*>& Game::getVehicles()
 {
-	return mPlanes;
+	return mVehicles;
 }
 

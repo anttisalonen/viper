@@ -4,7 +4,7 @@
 #include "Game.h"
 #include "Entity.h"
 #include "Missile.h"
-#include "Plane.h"
+#include "Vehicle.h"
 #include "Terrain.h"
 
 #define APP_RESOURCE_NAME "Resources"
@@ -300,12 +300,12 @@ void UserInterface::removeEntity(const VisibleEntity* p)
 	}
 }
 
-void UserInterface::updatePlane(const Plane* p)
+void UserInterface::updateVehicle(const Vehicle* p)
 {
 	updateEntity(p);
 
 	if(p->isDestroyed()) {
-		checkAddParticleSystem(p, "DestroyedPlane");
+		checkAddParticleSystem(p, "DestroyedVehicle");
 	}
 }
 

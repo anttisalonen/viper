@@ -20,7 +20,7 @@ particle_system MissileEngine
     }
 }
 
-particle_system DestroyedPlane
+particle_system DestroyedVehicle
 {
     material MissileEngine
     particle_width 10

@@ -48,8 +48,8 @@ void Vehicle::update(float t)
 
 	if(mTargetUpdateTimer.countdownAndRewind(t)) {
 		mTarget = nullptr;
-		auto planes = mGame->getPlanes();
-		for(auto p : planes) {
+		auto vehicles = mGame->getVehicles();
+		for(auto p : vehicles) {
 			if(p != this) {
 				mTarget = p;
 				break;
