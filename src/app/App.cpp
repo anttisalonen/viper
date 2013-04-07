@@ -45,7 +45,7 @@ App::App(InputHandler* ih)
 		mViewport = mWindow->addViewport(mCamera);
 		mViewport->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
 		mCamera->setAspectRatio(float(mViewport->getActualWidth()) / float(mViewport->getActualHeight()));
-		mCamera->setNearClipDistance(5.0f);
+		mCamera->setNearClipDistance(1.0f);
 		mCamera->setFarClipDistance(3000.0f);
 		mCamera->lookAt(20, 25, 50);
 
@@ -355,6 +355,7 @@ void App::setCamera(const Common::Vector3& offset,
 	Ogre::Vector3 o(offset.x, offset.y, offset.z);
 	mCamera->setPosition(l + (q * o));
 	mCamera->lookAt(l);
+	constrainCamera();
 }
 
 void App::setCamera(const Common::Vector3& position,
@@ -365,5 +366,16 @@ void App::setCamera(const Common::Vector3& position,
 	// geometry
 	mCamera->setOrientation(Ogre::Quaternion(rot.w, -rot.x, rot.y, -rot.z));
 	mCamera->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(180));
+	constrainCamera();
 }
+
+void App::constrainCamera()
+{
+	const Ogre::Vector3& pos = mCamera->getPosition();
+	float minHeight = std::max<float>(0.0f, getTerrainHeightAt(pos.x, pos.z)) + 2.0f;
+	if(minHeight > pos.y) {
+		mCamera->setPosition(pos.x, minHeight, pos.z);
+	}
+}
+
 

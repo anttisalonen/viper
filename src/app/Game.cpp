@@ -99,7 +99,7 @@ bool Game::update(float frameTime)
 			case ViewSetting::Cockpit:
 				{
 					Common::Vector3 viewpoint = mTrackingPlane->getPosition() +
-						Common::Math::rotate3D(Common::Vector3(0, 1, 5),
+						Common::Math::rotate3D(Common::Vector3(0, 2, 5),
 								mTrackingPlane->getRotation()) * 5.0f;
 					mApp->setCamera(viewpoint, mTrackingPlane->getRotation());
 				}
@@ -107,8 +107,7 @@ bool Game::update(float frameTime)
 
 			case ViewSetting::Offset:
 				{
-					Common::Vector3 offset = Common::Vector3(0, 0, -30);
-					offset.y += 5.0f;
+					Common::Vector3 offset = Common::Vector3(0, 5, -30);
 					mApp->setCamera(offset, mTrackingPlane->getPosition(),
 							mTrackingPlane->getRotation() *
 							mInputHandler->getViewRotation());

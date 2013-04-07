@@ -43,6 +43,7 @@ class App {
 		void addTerrainPosition(Ogre::ManualObject* obj, float x, float y);
 		float getTerrainHeightAt(float x, float y) const;
 		void checkAddParticleSystem(const VisibleEntity* m, const char* type);
+		void constrainCamera();
 
 		Ogre::Root* mRoot = nullptr;
 		Ogre::RenderWindow* mWindow = nullptr;
