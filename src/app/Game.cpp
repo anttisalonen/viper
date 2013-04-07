@@ -1,6 +1,6 @@
 #include "Game.h"
 #include "InputHandler.h"
-#include "App.h"
+#include "UserInterface.h"
 
 #include "Plane.h"
 #include "Missile.h"
@@ -9,7 +9,7 @@
 
 Game::Game()
 	: mInputHandler(new InputHandler()),
-	mApp(new App(mInputHandler))
+	mUserInterface(new UserInterface(mInputHandler))
 {
 	Plane* p = addPlane(Common::Vector3(200, 250, 50), Common::Quaternion(0, 0, 0, 1));
 	p->setController(mInputHandler);
@@ -35,15 +35,15 @@ Game::~Game()
 
 	delete mInputHandler;
 	mInputHandler = nullptr;
-	delete mApp;
-	mApp = nullptr;
+	delete mUserInterface;
+	mUserInterface = nullptr;
 }
 
 void Game::go()
 {
 	double prevTime = Common::Clock::getTime();
-	while(!mApp->isClosed()) {
-		mApp->renderOneFrame();
+	while(!mUserInterface->isClosed()) {
+		mUserInterface->renderOneFrame();
 		double thisTime = Common::Clock::getTime();
 		double diffTime = thisTime - prevTime;
 		prevTime = thisTime;
@@ -70,7 +70,7 @@ bool Game::update(float frameTime)
 {
 	for(auto p : mPlanes) {
 		p->update(frameTime);
-		mApp->updatePlane(p);
+		mUserInterface->updatePlane(p);
 
 		/* brute force O(n^2) collision detection between planes for now */
 		for(auto p2 : mPlanes) {
@@ -83,10 +83,10 @@ bool Game::update(float frameTime)
 
 	for(auto mit = mMissiles.begin(); mit != mMissiles.end(); ) {
 		(*mit)->update(frameTime);
-		mApp->updateMissile(*mit);
+		mUserInterface->updateMissile(*mit);
 
 		if((*mit)->outOfFuel()) {
-			mApp->removeMissile(*mit);
+			mUserInterface->removeMissile(*mit);
 			delete *mit;
 			mit = mMissiles.erase(mit);
 		} else {
@@ -101,14 +101,14 @@ bool Game::update(float frameTime)
 					Common::Vector3 viewpoint = mTrackingPlane->getPosition() +
 						Common::Math::rotate3D(Common::Vector3(0, 2, 5),
 								mTrackingPlane->getRotation()) * 5.0f;
-					mApp->setCamera(viewpoint, mTrackingPlane->getRotation());
+					mUserInterface->setCamera(viewpoint, mTrackingPlane->getRotation());
 				}
 				break;
 
 			case ViewSetting::Offset:
 				{
 					Common::Vector3 offset = Common::Vector3(0, 5, -30);
-					mApp->setCamera(offset, mTrackingPlane->getPosition(),
+					mUserInterface->setCamera(offset, mTrackingPlane->getPosition(),
 							mTrackingPlane->getRotation() *
 							mInputHandler->getViewRotation());
 				}

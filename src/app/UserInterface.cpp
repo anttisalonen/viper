@@ -1,6 +1,6 @@
 #include <noise/noise.h>
 
-#include "App.h"
+#include "UserInterface.h"
 
 #include "InputHandler.h"
 #include "Game.h"
@@ -10,7 +10,7 @@
 
 #define APP_RESOURCE_NAME "Resources"
 
-App::App(InputHandler* ih)
+UserInterface::UserInterface(InputHandler* ih)
 	: mConstants("share/graphics/config/constants.json")
 {
 	mRoot = new Ogre::Root("", "", "");
@@ -60,7 +60,7 @@ App::App(InputHandler* ih)
 	}
 }
 
-void App::initResources()
+void UserInterface::initResources()
 {
 	Ogre::ResourceGroupManager::getSingleton().createResourceGroup(APP_RESOURCE_NAME);
 	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/graphics/aircraft", "FileSystem", APP_RESOURCE_NAME, false);
@@ -70,7 +70,7 @@ void App::initResources()
 	Ogre::ResourceGroupManager::getSingleton().loadResourceGroup(APP_RESOURCE_NAME);
 }
 
-void App::initInput(InputHandler* ih)
+void UserInterface::initInput(InputHandler* ih)
 {
 	size_t hWnd = 0;
 	mWindow->getCustomAttribute("WINDOW", &hWnd);
@@ -97,7 +97,7 @@ void App::initInput(InputHandler* ih)
 	mMouse->setEventCallback(ih);
 }
 
-bool App::checkWindowResize()
+bool UserInterface::checkWindowResize()
 {
 	unsigned int mOldWidth, mOldHeight;
 	mOldWidth = mWindowWidth;
@@ -113,7 +113,7 @@ bool App::checkWindowResize()
 	return false;
 }
 
-void App::setupScene()
+void UserInterface::setupScene()
 {
 	// Set ambient light
 	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
@@ -148,7 +148,7 @@ void App::setupScene()
 	setupTerrain();
 }
 
-void App::setupTerrain()
+void UserInterface::setupTerrain()
 {
 	int terrainNum = 1;
 	const float scale = 10.0f;
@@ -219,7 +219,7 @@ void App::setupTerrain()
 	}
 }
 
-float App::getTerrainHeightAt(float x, float y) const
+float UserInterface::getTerrainHeightAt(float x, float y) const
 {
 	static noise::module::Perlin perlin;
 	static float scale = mConstants.getFloat("terrain_height_scale");
@@ -227,17 +227,17 @@ float App::getTerrainHeightAt(float x, float y) const
 	return offset + scale * perlin.GetValue(x * 0.001f, y * 0.001f, 0.0f);
 }
 
-App::~App()
+UserInterface::~UserInterface()
 {
 	delete mRoot;
 }
 
-bool App::isClosed() const
+bool UserInterface::isClosed() const
 {
 	return !mWindow || mWindow->isClosed();
 }
 
-void App::renderOneFrame()
+void UserInterface::renderOneFrame()
 {
 	if(!isClosed()) {
 		mRoot->renderOneFrame();
@@ -248,7 +248,7 @@ void App::renderOneFrame()
 	}
 }
 
-void App::updateEntity(const VisibleEntity* p)
+void UserInterface::updateEntity(const VisibleEntity* p)
 {
 	const Common::Vector3& v = p->getPosition();
 	const Common::Quaternion& q = p->getRotation();
@@ -276,7 +276,7 @@ void App::updateEntity(const VisibleEntity* p)
 	n->setPosition(v.x, v.y, v.z);
 }
 
-void App::removeEntity(const VisibleEntity* p)
+void UserInterface::removeEntity(const VisibleEntity* p)
 {
 	{
 		auto it = mParticleSystems.find(p);
@@ -301,7 +301,7 @@ void App::removeEntity(const VisibleEntity* p)
 	}
 }
 
-void App::updatePlane(const Plane* p)
+void UserInterface::updatePlane(const Plane* p)
 {
 	updateEntity(p);
 
@@ -310,7 +310,7 @@ void App::updatePlane(const Plane* p)
 	}
 }
 
-void App::checkAddParticleSystem(const VisibleEntity* m, const char* type)
+void UserInterface::checkAddParticleSystem(const VisibleEntity* m, const char* type)
 {
 	Ogre::SceneNode* n;
 	auto eit = mEntities.find(m);
@@ -332,7 +332,7 @@ void App::checkAddParticleSystem(const VisibleEntity* m, const char* type)
 	}
 }
 
-void App::updateMissile(const Missile* m)
+void UserInterface::updateMissile(const Missile* m)
 {
 	updateEntity(m);
 	if(!m->attached()) {
@@ -340,12 +340,12 @@ void App::updateMissile(const Missile* m)
 	}
 }
 
-void App::removeMissile(const Missile* m)
+void UserInterface::removeMissile(const Missile* m)
 {
 	removeEntity(m);
 }
 
-void App::setCamera(const Common::Vector3& offset,
+void UserInterface::setCamera(const Common::Vector3& offset,
 		const Common::Vector3& lookat,
 		const Common::Quaternion& rot)
 {
@@ -358,7 +358,7 @@ void App::setCamera(const Common::Vector3& offset,
 	constrainCamera();
 }
 
-void App::setCamera(const Common::Vector3& position,
+void UserInterface::setCamera(const Common::Vector3& position,
 		const Common::Quaternion& rot)
 {
 	mCamera->setPosition(Ogre::Vector3(position.x, position.y, position.z));
@@ -369,7 +369,7 @@ void App::setCamera(const Common::Vector3& position,
 	constrainCamera();
 }
 
-void App::constrainCamera()
+void UserInterface::constrainCamera()
 {
 	const Ogre::Vector3& pos = mCamera->getPosition();
 	float minHeight = std::max<float>(0.0f, getTerrainHeightAt(pos.x, pos.z)) + 2.0f;

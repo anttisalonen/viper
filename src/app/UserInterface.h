@@ -17,10 +17,10 @@ class VisibleEntity;
 class Missile;
 class Plane;
 
-class App {
+class UserInterface {
 	public:
-		App(InputHandler* ih);
-		~App();
+		UserInterface(InputHandler* ih);
+		~UserInterface();
 		bool isClosed() const;
 		void renderOneFrame();
 		void updateEntity(const VisibleEntity* p);

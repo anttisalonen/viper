@@ -7,7 +7,7 @@
 #include "common/Vector3.h"
 #include "common/Quaternion.h"
 
-class App;
+class UserInterface;
 class InputHandler;
 class Plane;
 class Missile;
@@ -24,7 +24,7 @@ class Game {
 		Plane* addPlane(const Common::Vector3& pos, const Common::Quaternion& q);
 
 		InputHandler* mInputHandler;
-		App* mApp;
+		UserInterface* mUserInterface;
 		std::list<Plane*> mPlanes;
 		std::list<Missile*> mMissiles;
 		Plane* mTrackingPlane;
