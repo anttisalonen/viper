@@ -2,15 +2,23 @@
 #include "InputHandler.h"
 #include "UserInterface.h"
 
+#include "Terrain.h"
 #include "Plane.h"
 #include "Missile.h"
 
 #include "common/Math.h"
 
 Game::Game()
-	: mInputHandler(new InputHandler()),
-	mUserInterface(new UserInterface(mInputHandler))
+	: mInputHandler(new InputHandler())
 {
+	Constants terrainConstants("share/terrain/constants.json");
+	float scale = terrainConstants.getFloat("height_scale");
+	float offset = terrainConstants.getFloat("height_offset");
+	unsigned int dim = terrainConstants.getUInt("dimension");
+	mTerrain = new Terrain(scale, offset, dim);
+
+	mUserInterface = new UserInterface(mInputHandler, mTerrain);
+
 	Plane* p = addPlane(Common::Vector3(200, 250, 50), Common::Quaternion(0, 0, 0, 1));
 	p->setController(mInputHandler);
 	mInputHandler->setPlane(p);

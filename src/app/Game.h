@@ -11,6 +11,7 @@ class UserInterface;
 class InputHandler;
 class Plane;
 class Missile;
+class Terrain;
 
 class Game {
 	public:
@@ -25,6 +26,7 @@ class Game {
 
 		InputHandler* mInputHandler;
 		UserInterface* mUserInterface;
+		Terrain* mTerrain;
 		std::list<Plane*> mPlanes;
 		std::list<Missile*> mMissiles;
 		Plane* mTrackingPlane;

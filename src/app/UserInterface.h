@@ -16,10 +16,11 @@ class Game;
 class VisibleEntity;
 class Missile;
 class Plane;
+class Terrain;
 
 class UserInterface {
 	public:
-		UserInterface(InputHandler* ih);
+		UserInterface(InputHandler* ih, const Terrain* t);
 		~UserInterface();
 		bool isClosed() const;
 		void renderOneFrame();
@@ -70,6 +71,7 @@ class UserInterface {
 		unsigned int mNumParticleSystems = 0;
 
 		Constants mConstants;
+		const Terrain* mTerrain;
 };
 
 #endif

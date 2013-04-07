@@ -1,5 +1,3 @@
-#include <noise/noise.h>
-
 #include "UserInterface.h"
 
 #include "InputHandler.h"
@@ -7,11 +5,13 @@
 #include "Entity.h"
 #include "Missile.h"
 #include "Plane.h"
+#include "Terrain.h"
 
 #define APP_RESOURCE_NAME "Resources"
 
-UserInterface::UserInterface(InputHandler* ih)
-	: mConstants("share/graphics/config/constants.json")
+UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
+	: mConstants("share/graphics/config/constants.json"),
+	mTerrain(t)
 {
 	mRoot = new Ogre::Root("", "", "");
 	mRoot->loadPlugin(OGRE_PLUGIN_DIR "/RenderSystem_GL");
@@ -150,11 +150,13 @@ void UserInterface::setupScene()
 
 void UserInterface::setupTerrain()
 {
+	// Plates define the number of manual objects fed to Ogre.
+	// numQuads^2 quads make up one plate.
 	int terrainNum = 1;
 	const float scale = 10.0f;
-	const unsigned int numTiles = mConstants.getUInt("terrain_tiles");
-	const unsigned int numPlates = 16;
-	const float offset = scale * numTiles;
+	const unsigned int numQuads = mConstants.getUInt("terrain_quads_per_plate");
+	const unsigned int numPlates = mTerrain->getDimension() / (numQuads * scale);
+	const float offset = scale * numQuads;
 	const float terrainTextureScale = mConstants.getFloat("terrain_texture_scale");
 
 	for(int x = 0; x < numPlates; x++) {
@@ -169,8 +171,8 @@ void UserInterface::setupTerrain()
 			const float offsetx = offset * (x - numPlates / 2);
 			const float offsety = offset * (y - numPlates / 2);
 
-			for(unsigned int i = 0; i < numTiles; i++) {
-				for(unsigned int j = 0; j < numTiles; j++) {
+			for(unsigned int i = 0; i < numQuads; i++) {
+				for(unsigned int j = 0; j < numQuads; j++) {
 					/*		x1 - 1	x1	x2	x1 + 1
 					 * y1 - 1		U1	U2
 					 * y1		L1	z1	z4	R1
@@ -221,10 +223,7 @@ void UserInterface::setupTerrain()
 
 float UserInterface::getTerrainHeightAt(float x, float y) const
 {
-	static noise::module::Perlin perlin;
-	static float scale = mConstants.getFloat("terrain_height_scale");
-	static float offset = mConstants.getFloat("terrain_height_offset");
-	return offset + scale * perlin.GetValue(x * 0.001f, y * 0.001f, 0.0f);
+	return mTerrain->getHeightAt(x, y);
 }
 
 UserInterface::~UserInterface()
