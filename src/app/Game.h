@@ -23,6 +23,7 @@ class Game {
 		bool update(float frameTime);
 		std::list<Vehicle*>& getVehicles();
 		const Terrain* getTerrain() const;
+		void toggleInputHandler();
 
 	private:
 		Plane* addPlane(const Common::Vector3& pos, const Common::Quaternion& q);

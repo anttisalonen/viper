@@ -36,6 +36,11 @@ void VisibleEntity::setVelocity(const Common::Vector3& v)
 	mVelocity = v;
 }
 
+void VisibleEntity::setRotation(const Common::Quaternion& q)
+{
+	mRotation = q;
+}
+
 void VisibleEntity::update(float t)
 {
 	// update position

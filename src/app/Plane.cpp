@@ -12,12 +12,16 @@ Plane::Plane(Game* g, const Common::Vector3& pos, const Common::Quaternion& q)
 void Plane::update(float t)
 {
 	if(isDestroyed()) {
-		Common::Quaternion tgtRot = Common::Quaternion(sqrt(0.5), 0, 0, sqrt(0.5));
-		mRotation = mRotation.slerp(tgtRot,
-				Common::clamp(0.0f, 0.3f * t, 1.0f));
-		mRotationVelocities[0] = 0.0f;
-		mRotationVelocities[1] = 0.0f;
-		mRotationVelocities[2] = 0.3f;
+		if(!grounded()) {
+			Common::Quaternion tgtRot = Common::Quaternion(sqrt(0.5), 0, 0, sqrt(0.5));
+			mRotation = mRotation.slerp(tgtRot,
+					Common::clamp(0.0f, 0.3f * t, 1.0f));
+			mRotationVelocities[0] = 0.0f;
+			mRotationVelocities[1] = 0.0f;
+			mRotationVelocities[2] = 0.3f;
+		} else {
+			mVelocity = getVelocity() * 0.99f;
+		}
 	} else {
 		// update rotation velocity
 		Common::Quaternion rot(0, 0, 0, 1);
@@ -31,7 +35,9 @@ void Plane::update(float t)
 	}
 
 	// update velocity
-	mVelocity = Common::Math::rotate3D(Common::Vector3(0, 0, 1), mRotation) * 40.0f;
+	if(!isDestroyed()) {
+		mVelocity = Common::Math::rotate3D(Common::Vector3(0, 0, 1), mRotation) * 40.0f;
+	}
 
 	Vehicle::update(t);
 

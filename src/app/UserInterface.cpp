@@ -155,8 +155,8 @@ void UserInterface::setupTerrain()
 	// numQuads^2 quads make up one plate.
 	int terrainNum = 1;
 	const float scale = 10.0f;
-	const unsigned int numQuads = mConstants.getUInt("terrain_quads_per_plate");
-	const unsigned int numPlates = mTerrain->getDimension() / (numQuads * scale);
+	const int numQuads = mConstants.getUInt("terrain_quads_per_plate");
+	const int numPlates = mTerrain->getDimension() / (numQuads * scale);
 	const float offset = scale * numQuads;
 	const float terrainTextureScale = mConstants.getFloat("terrain_texture_scale");
 

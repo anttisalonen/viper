@@ -22,12 +22,12 @@ Game::Game()
 
 	Plane* p = addPlane(Common::Vector3(200, 250, 50), Common::Quaternion(0, 0, 0, 1));
 	p->setController(mInputHandler);
-	mInputHandler->setPlane(p);
+	mInputHandler->setVehicle(p);
 
 	mTrackingVehicle = p;
 
 	addPlane(Common::Vector3(200, 280, 460), Common::Quaternion(0, sqrt(2.0f) * 0.5f, 0, sqrt(2.0f) * 0.5f));
-	addSAM(Common::Vector3(200, 0, 800), 0.0f);
+	addSAM(Common::Vector3(200, 0, 600), 0.0f);
 }
 
 Game::~Game()
@@ -80,7 +80,7 @@ Plane* Game::addPlane(const Common::Vector3& pos, const Common::Quaternion& q)
 
 SAM* Game::addSAM(const Common::Vector3& pos, float dir)
 {
-	SAM* s = new SAM(this, pos, Common::Quaternion());
+	SAM* s = new SAM(this, pos, Common::Quaternion(0, 0, 0, 1));
 	mVehicles.push_back(s);
 	return s;
 }
@@ -102,6 +102,23 @@ bool Game::update(float frameTime)
 			mit = mMissiles.erase(mit);
 		} else {
 			++mit;
+		}
+	}
+
+	if(mInputHandler->checkVehicleChangeRequest()) {
+		auto it = mVehicles.begin();
+		for(; it != mVehicles.end(); ++it) {
+			if(*it == mInputHandler->getVehicle()) {
+				++it;
+				break;
+			}
+		}
+		if(it == mVehicles.end())
+			it = mVehicles.begin();
+		if(it != mVehicles.end()) {
+			(*it)->setController(mInputHandler);
+			mInputHandler->setVehicle(*it);
+			mTrackingVehicle = *it;
 		}
 	}
 

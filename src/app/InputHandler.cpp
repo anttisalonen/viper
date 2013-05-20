@@ -1,6 +1,8 @@
 #include "InputHandler.h"
 #include "common/Math.h"
 
+#include <string.h>
+
 InputHandler::InputHandler()
 {
 }
@@ -10,24 +12,144 @@ bool InputHandler::running() const
 	return mRunning;
 }
 
-void InputHandler::planeReset()
-{
-}
-
 void InputHandler::update(float time)
 {
 	mPitch = Common::clamp(-1.0f, mPitch * 1.1f, 1.0f);
 	mYaw   = Common::clamp(-1.0f, mYaw   * 1.1f, 1.0f);
 	mRoll  = Common::clamp(-1.0f, mRoll  * 1.1f, 1.0f);
-	if(mPlane) {
-		mPlane->setTargetVelocity(PrincipalAxis::Pitch, mPitch);
-		mPlane->setTargetVelocity(PrincipalAxis::Yaw, mYaw);
-		mPlane->setTargetVelocity(PrincipalAxis::Roll, mRoll);
+
+	mAcceleration = Common::clamp(-1.0f, mAcceleration * 1.1f, 1.0f);
+
+	if(mVehicle) {
+		mVehicle->setTargetVelocity(PrincipalAxis::Pitch, mPitch);
+		mVehicle->setTargetVelocity(PrincipalAxis::Yaw, mYaw);
+		mVehicle->setTargetVelocity(PrincipalAxis::Roll, mRoll);
+		mVehicle->setTargetVelocity(mAcceleration);
 
 		if(mShooting) {
 			mShooting = false;
-			mPlane->shoot();
+			mVehicle->shoot();
 		}
+	}
+}
+
+void InputHandler::printInfo()
+{
+	if(mVehicle) {
+		std::cout << "Position: " << mVehicle->getPosition() << "\n";
+		std::cout << "Velocity: " << mVehicle->getVelocity() << "\n";
+		std::cout << "Rotation: " << mVehicle->getRotation() << "\n";
+		float yaw, roll, pitch;
+		mVehicle->getRotation().toEuler(pitch, yaw, roll);
+		std::cout << "Pitch/Yaw/Roll: " << pitch << " / " << yaw << " / " << roll << "\n";
+	}
+}
+
+void InputHandler::requestVehicleChange()
+{
+	mRequestingVehicleChange = true;
+}
+
+bool InputHandler::checkVehicleChangeRequest()
+{
+	if(mRequestingVehicleChange) {
+		mRequestingVehicleChange = false;
+		return true;
+	} else {
+		return false;
+	}
+}
+
+void InputHandler::handleVehicleControl(const OIS::KeyEvent& arg, bool pressed)
+{
+	if(mVehicle) {
+		const char* t = mVehicle->getType();
+		if(!strcmp(t, "f16")) {
+			handlePlaneControl(arg, pressed);
+		} else if(!strcmp(t, "sa8")) {
+			handleLandVehicleControl(arg, pressed);
+		}
+	}
+}
+
+void InputHandler::handlePlaneControl(const OIS::KeyEvent& arg, bool pressed)
+{
+	float* val = nullptr;
+	int dir = 1;
+	switch(arg.key) {
+		case OIS::KC_UP:
+		case OIS::KC_W:
+			val = &mPitch;
+			break;
+
+		case OIS::KC_DOWN:
+		case OIS::KC_S:
+			val = &mPitch;
+			dir = -1;
+			break;
+
+		case OIS::KC_Q:
+			val = &mYaw;
+			break;
+
+		case OIS::KC_E:
+			val = &mYaw;
+			dir = -1;
+			break;
+
+		case OIS::KC_LEFT:
+		case OIS::KC_A:
+			val = &mRoll;
+			dir = -1;
+			break;
+
+		case OIS::KC_RIGHT:
+		case OIS::KC_D:
+			val = &mRoll;
+			break;
+
+		default:
+			break;
+	}
+
+	if(val) {
+		*val = pressed ? 0.1f * dir : 0;
+	}
+}
+
+void InputHandler::handleLandVehicleControl(const OIS::KeyEvent& arg, bool pressed)
+{
+	float* val = nullptr;
+	int dir = 1;
+	switch(arg.key) {
+		case OIS::KC_UP:
+		case OIS::KC_W:
+			val = &mAcceleration;
+			break;
+
+		case OIS::KC_DOWN:
+		case OIS::KC_S:
+			val = &mAcceleration;
+			dir = -1;
+			break;
+
+		case OIS::KC_LEFT:
+		case OIS::KC_A:
+			val = &mYaw;
+			break;
+
+		case OIS::KC_RIGHT:
+		case OIS::KC_D:
+			val = &mYaw;
+			dir = -1;
+			break;
+
+		default:
+			break;
+	}
+
+	if(val) {
+		*val = pressed ? 0.1f * dir : 0;
 	}
 }
 
@@ -40,42 +162,19 @@ bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
 
 		case OIS::KC_UP:
 		case OIS::KC_W:
-			mPitch = 0.1f;
-			break;
-
 		case OIS::KC_DOWN:
 		case OIS::KC_S:
-			mPitch = -0.1f;
-			break;
-
 		case OIS::KC_Q:
-			mYaw = 0.1f;
-			break;
-
 		case OIS::KC_E:
-			mYaw = -0.1f;
-			break;
-
 		case OIS::KC_LEFT:
 		case OIS::KC_A:
-			mRoll = -0.1f;
-			break;
-
 		case OIS::KC_RIGHT:
 		case OIS::KC_D:
-			mRoll = 0.1f;
+			handleVehicleControl(arg, true);
 			break;
 
 		case OIS::KC_SPACE:
 			mShooting = true;
-			break;
-
-		case OIS::KC_V:
-			{
-				float roll, pitch, yaw;
-				mPlane->getRotation().toEuler(roll, pitch, yaw);
-				std::cout << roll << " " << pitch << " " << yaw << "\n";
-			}
 			break;
 
 		case OIS::KC_C:
@@ -94,6 +193,14 @@ bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
 			mViewRotation.reset();
 			break;
 
+		case OIS::KC_P:
+			printInfo();
+			break;
+
+		case OIS::KC_F:
+			requestVehicleChange();
+			break;
+
 		default:
 			break;
 	}
@@ -105,22 +212,16 @@ bool InputHandler::keyReleased(const OIS::KeyEvent &arg)
 {
 	switch(arg.key) {
 		case OIS::KC_UP:
-		case OIS::KC_DOWN:
 		case OIS::KC_W:
+		case OIS::KC_DOWN:
 		case OIS::KC_S:
-			mPitch = 0.0f;
-			break;
-
-		case OIS::KC_LEFT:
-		case OIS::KC_RIGHT:
-		case OIS::KC_A:
-		case OIS::KC_D:
-			mRoll = 0.0f;
-			break;
-
 		case OIS::KC_Q:
 		case OIS::KC_E:
-			mYaw = 0.0f;
+		case OIS::KC_LEFT:
+		case OIS::KC_A:
+		case OIS::KC_RIGHT:
+		case OIS::KC_D:
+			handleVehicleControl(arg, false);
 			break;
 
 		default:

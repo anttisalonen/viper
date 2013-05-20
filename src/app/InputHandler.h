@@ -5,19 +5,18 @@
 
 #include "common/Quaternion.h"
 
-#include "PlaneController.h"
+#include "VehicleController.h"
 
 enum class ViewSetting {
 	Offset,
 	Cockpit
 };
 
-class InputHandler : public PlaneController, public OIS::KeyListener, public OIS::MouseListener {
+class InputHandler : public VehicleController, public OIS::KeyListener, public OIS::MouseListener {
 	public:
 		InputHandler();
 		virtual void update(float time) override;
 		bool running() const;
-		virtual void planeReset() override;
 		bool keyPressed(const OIS::KeyEvent &arg);
 		bool keyReleased(const OIS::KeyEvent &arg);
 		bool mouseMoved(const OIS::MouseEvent& arg);
@@ -25,15 +24,25 @@ class InputHandler : public PlaneController, public OIS::KeyListener, public OIS
 		bool mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID button);
 		ViewSetting getCurrentViewSetting() const;
 		const Common::Quaternion& getViewRotation() const;
+		bool checkVehicleChangeRequest();
 
 	private:
+		void printInfo();
+		void requestVehicleChange();
+		void handleVehicleControl(const OIS::KeyEvent& arg, bool pressed);
+		void handlePlaneControl(const OIS::KeyEvent& arg, bool pressed);
+		void handleLandVehicleControl(const OIS::KeyEvent& arg, bool pressed);
+
 		float mPitch = 0.0f;
 		float mRoll = 0.0f;
 		float mYaw = 0.0f;
+		float mAcceleration = 0.0f;
 		bool mRunning = true;
 		bool mShooting = false;
 		ViewSetting mViewSetting = ViewSetting::Cockpit;
 		Common::Quaternion mViewRotation;
+
+		bool mRequestingVehicleChange = false;
 };
 
 #endif

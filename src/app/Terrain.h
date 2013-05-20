@@ -1,6 +1,8 @@
 #ifndef APP_TERRAIN_H
 #define APP_TERRAIN_H
 
+#include <vector>
+
 #include <noise/noise.h>
 
 class Terrain {
@@ -10,10 +12,15 @@ class Terrain {
 		float getDimension() const;
 
 	private:
+		float getIHeightAt(int ix, int iy) const;
+
 		noise::module::Perlin mPerlin;
 		float mScale;
 		float mOffset;
-		float mDimension;
+		unsigned int mDimension;
+		unsigned int mDistance;
+		unsigned int mCacheWidth;
+		mutable std::vector<float> mHeightCache;
 };
 
 #endif

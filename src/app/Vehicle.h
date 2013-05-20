@@ -9,7 +9,7 @@
 
 #include "Entity.h"
 
-class PlaneController;
+class VehicleController;
 class Missile;
 class Game;
 
@@ -18,7 +18,8 @@ class Vehicle : public VisibleEntity {
 		Vehicle(Game* g, const Common::Vector3& pos, const Common::Quaternion& q);
 		virtual void update(float t) override;
 		void setTargetVelocity(PrincipalAxis a, float v);
-		void setController(PlaneController* p);
+		void setTargetVelocity(float v);
+		void setController(VehicleController* p);
 		void shoot();
 		void addMissile(Missile* m);
 		void destroy();
@@ -26,14 +27,18 @@ class Vehicle : public VisibleEntity {
 
 	protected:
 		Game* getGame();
+		const Game* getGame() const;
 		float mRotationTargetVelocities[3];
+		float mTargetVelocity = 0.0f;
 		bool grounded() const;
 
 	private:
 		void checkShooting();
+		void setRotationToGround();
+		float getHeightAt(float x, float y) const;
 
 		Game* mGame = nullptr;
-		PlaneController* mController = nullptr;
+		VehicleController* mController = nullptr;
 		bool mShooting = false;
 		std::vector<Missile*> mMissiles;
 		Vehicle* mTarget = nullptr;
