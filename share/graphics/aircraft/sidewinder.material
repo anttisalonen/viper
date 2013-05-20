@@ -1,0 +1,156 @@
+
+material _missing_material_
+{
+    receive_shadows off
+    technique
+    {
+        pass
+        {
+            ambient 0.1 0.1 0.1 1.0
+            diffuse 0.8 0.0 0.0 1.0
+            specular 0.5 0.5 0.5 1.0 12.5
+            emissive 0.3 0.3 0.3 1.0
+        }
+    }
+}
+
+// Tip genrated by blender2ogre 0.5.9
+
+material Tip 
+{
+    receive_shadows on 
+
+    technique
+    {
+        pass Tip
+        {
+            ambient 0.0 0.0 0.0 1.0
+            diffuse 0.0 0.0 0.0 1.0
+            specular 0.842391312122345 0.842391312122345 0.842391312122345 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware clockwise
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            illumination_stage 
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            normalise_normals off
+            polygon_mode solid
+            scene_blend one zero
+            scene_blend_op add
+            shading gouraud
+            transparent_sorting on
+
+        }
+    }
+}
+// White genrated by blender2ogre 0.5.9
+
+material White 
+{
+    receive_shadows on 
+
+    technique
+    {
+        pass White
+        {
+            ambient 0.800000011920929 0.800000011920929 0.800000011920929 1.0
+            diffuse 0.800000011920929 0.800000011920929 0.800000011920929 1.0
+            specular 0.7554347515106201 0.7554347515106201 0.7554347515106201 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware clockwise
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            illumination_stage 
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            normalise_normals off
+            polygon_mode solid
+            scene_blend one zero
+            scene_blend_op add
+            shading gouraud
+            transparent_sorting on
+
+        }
+    }
+}
+// Dark genrated by blender2ogre 0.5.9
+
+material Dark 
+{
+    receive_shadows on 
+
+    technique
+    {
+        pass Dark
+        {
+            ambient 0.054968640208244324 0.054968640208244324 0.054968640208244324 1.0
+            diffuse 0.043974912821872714 0.043974912821872714 0.043974912821872714 1.0
+            specular 0.7445652484893799 0.7445652484893799 0.7445652484893799 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware clockwise
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            illumination_stage 
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            normalise_normals off
+            polygon_mode solid
+            scene_blend one zero
+            scene_blend_op add
+            shading gouraud
+            transparent_sorting on
+
+        }
+    }
+}
+// Blue genrated by blender2ogre 0.5.9
+
+material Blue 
+{
+    receive_shadows on 
+
+    technique
+    {
+        pass Blue
+        {
+            ambient 0.0011135071981698275 0.0 0.195987731218338 1.0
+            diffuse 0.0003582588451747498 0.0 0.06305692353862291 1.0
+            specular 0.0 0.012996139359851 0.12216581734129761 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware clockwise
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            illumination_stage 
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            normalise_normals off
+            polygon_mode solid
+            scene_blend one zero
+            scene_blend_op add
+            shading gouraud
+            transparent_sorting on
+
+        }
+    }
+}
