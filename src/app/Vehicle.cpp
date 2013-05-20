@@ -4,6 +4,7 @@
 #include "Vehicle.h"
 #include "Missile.h"
 #include "Game.h"
+#include "Terrain.h"
 
 #include "PlaneController.h"
 
@@ -14,33 +15,11 @@ Vehicle::Vehicle(Game* g, const Common::Vector3& pos, const Common::Quaternion& 
 	mGame(g)
 {
 	memset(mRotationTargetVelocities, 0x00, sizeof(mRotationTargetVelocities));
-	mVelocity = Common::Vector3(0, 0, 10);
 }
 
 void Vehicle::update(float t)
 {
-	if(mDestroyed) {
-		Common::Quaternion tgtRot = Common::Quaternion(sqrt(0.5), 0, 0, sqrt(0.5));
-		mRotation = mRotation.slerp(tgtRot,
-				Common::clamp(0.0f, 0.3f * t, 1.0f));
-		mRotationVelocities[0] = 0.0f;
-		mRotationVelocities[1] = 0.0f;
-		mRotationVelocities[2] = 0.3f;
-	} else {
-		// update rotation velocity
-		Common::Quaternion rot(0, 0, 0, 1);
-		for(int i = 0; i < 3; i++) {
-			static const float coefficients[3] = { 5.0f, 2.0f, 5.0f };
-			float diff = mRotationTargetVelocities[i] - mRotationVelocities[i];
-			float acc = Common::clamp(-1.0f, diff * 0.5f, 1.0f);
-			float updatedV = mRotationVelocities[i] + acc * t * coefficients[i];
-			mRotationVelocities[i] = Common::clamp(-1.0f, updatedV, 1.0f);
-		}
-	}
-
-	// update velocity
-	mVelocity = Common::Math::rotate3D(Common::Vector3(0, 0, 1), mRotation) * 40.0f;
-
+	mVelocity += Common::Vector3(0.0f, -18.0f * t, 0.0f);
 	VisibleEntity::update(t);
 
 	if(mController)
@@ -58,6 +37,25 @@ void Vehicle::update(float t)
 	}
 
 	checkShooting();
+
+	/* brute force O(n^2) collision detection between planes for now */
+	for(auto p2 : mGame->getVehicles()) {
+		if(this != p2 && this->collidesWith(*p2)) {
+			this->destroy();
+			p2->destroy();
+		}
+	}
+
+	// check whether on ground
+	auto pos = getPosition();
+	float tHeight = std::max<float>(0.0f, getGame()->getTerrain()->getHeightAt(pos.x, pos.z));
+	float minHeight = tHeight + getRadius();
+	mGrounded = minHeight > pos.y;
+	if(mGrounded) {
+		if(tHeight > pos.y) {
+			setPosition(Common::Vector3(pos.x, tHeight, pos.z));
+		}
+	}
 }
 
 void Vehicle::setTargetVelocity(PrincipalAxis a, float v)
@@ -116,9 +114,13 @@ bool Vehicle::isDestroyed() const
 	return mDestroyed;
 }
 
-const char* Vehicle::getType() const
+Game* Vehicle::getGame()
 {
-	return "f16";
+	return mGame;
 }
 
+bool Vehicle::grounded() const
+{
+	return mGrounded;
+}
 

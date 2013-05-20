@@ -5,6 +5,7 @@
 #include "Terrain.h"
 #include "Plane.h"
 #include "Missile.h"
+#include "SAM.h"
 
 #include "common/Math.h"
 
@@ -26,6 +27,7 @@ Game::Game()
 	mTrackingVehicle = p;
 
 	addPlane(Common::Vector3(200, 280, 460), Common::Quaternion(0, sqrt(2.0f) * 0.5f, 0, sqrt(2.0f) * 0.5f));
+	addSAM(Common::Vector3(200, 0, 800), 0.0f);
 }
 
 Game::~Game()
@@ -76,29 +78,18 @@ Plane* Game::addPlane(const Common::Vector3& pos, const Common::Quaternion& q)
 	return p;
 }
 
+SAM* Game::addSAM(const Common::Vector3& pos, float dir)
+{
+	SAM* s = new SAM(this, pos, Common::Quaternion());
+	mVehicles.push_back(s);
+	return s;
+}
+
 bool Game::update(float frameTime)
 {
 	for(auto p : mVehicles) {
 		p->update(frameTime);
 		mUserInterface->updateVehicle(p);
-
-		/* brute force O(n^2) collision detection between planes for now */
-		for(auto p2 : mVehicles) {
-			if(p != p2 && p->collidesWith(*p2)) {
-				p->destroy();
-				p2->destroy();
-			}
-		}
-
-		auto pos = p->getPosition();
-		float tHeight = std::max<float>(0.0f, mTerrain->getHeightAt(pos.x, pos.z));
-		float minHeight = tHeight + p->getRadius();
-		if(minHeight > pos.y) {
-			p->destroy();
-			if(tHeight > pos.y) {
-				p->setPosition(Common::Vector3(pos.x, tHeight, pos.z));
-			}
-		}
 	}
 
 	for(auto mit = mMissiles.begin(); mit != mMissiles.end(); ) {
@@ -142,5 +133,10 @@ bool Game::update(float frameTime)
 std::list<Vehicle*>& Game::getVehicles()
 {
 	return mVehicles;
+}
+
+const Terrain* Game::getTerrain() const
+{
+	return mTerrain;
 }
 

@@ -23,19 +23,23 @@ class Vehicle : public VisibleEntity {
 		void addMissile(Missile* m);
 		void destroy();
 		bool isDestroyed() const;
-		virtual const char* getType() const override;
+
+	protected:
+		Game* getGame();
+		float mRotationTargetVelocities[3];
+		bool grounded() const;
 
 	private:
 		void checkShooting();
 
 		Game* mGame = nullptr;
 		PlaneController* mController = nullptr;
-		float mRotationTargetVelocities[3];
 		bool mShooting = false;
 		std::vector<Missile*> mMissiles;
 		Vehicle* mTarget = nullptr;
 		Common::Countdown mTargetUpdateTimer = Common::Countdown(0.1f);
 		bool mDestroyed = false;
+		bool mGrounded = false;
 };
 
 #endif

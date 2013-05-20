@@ -11,6 +11,7 @@ class UserInterface;
 class InputHandler;
 class Vehicle;
 class Plane;
+class SAM;
 class Missile;
 class Terrain;
 
@@ -21,9 +22,11 @@ class Game {
 		void go();
 		bool update(float frameTime);
 		std::list<Vehicle*>& getVehicles();
+		const Terrain* getTerrain() const;
 
 	private:
 		Plane* addPlane(const Common::Vector3& pos, const Common::Quaternion& q);
+		SAM* addSAM(const Common::Vector3& pos, float dir);
 
 		InputHandler* mInputHandler;
 		UserInterface* mUserInterface;
