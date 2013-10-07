@@ -23,15 +23,7 @@ void SAM::update(float t)
 	// http://stackoverflow.com/questions/3684269/component-of-a-quaternion-rotation-around-an-axis
 	float tv = Common::clamp(-0.5f, mTargetVelocity, 1.0f);
 	auto oldVel = mVelocity;
-	float yaw = mRotation.y;
-	Common::Vector3 ortho = Common::Vector3(1, 0, 0);
-	Common::Vector3 rot = Common::Math::rotate3D(ortho, mRotation);
-	// project rot to xz plane
-	rot.y = 0.0f;
-	rot.normalize();
-	yaw = acos(rot.dot(ortho));
-	if(rot.z < 0.0f)
-		yaw = -yaw;
+	float yaw = getYaw();
 	auto oldSpeed = Common::Vector3(mVelocity.x, 0.0f, mVelocity.z).length();
 	auto newSpeed = oldSpeed + tv;
 	Common::Vector3 rotated = Common::Math::rotate2D(Common::Vector3(0, 1, 0), yaw);

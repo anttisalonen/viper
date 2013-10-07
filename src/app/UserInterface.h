@@ -45,6 +45,7 @@ class UserInterface {
 		float getTerrainHeightAt(float x, float y) const;
 		void checkAddParticleSystem(const VisibleEntity* m, const char* type);
 		void constrainCamera();
+		void setupDebug();
 
 		Ogre::Root* mRoot = nullptr;
 		Ogre::RenderWindow* mWindow = nullptr;

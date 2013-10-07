@@ -7,6 +7,8 @@
 #include "Vehicle.h"
 #include "Terrain.h"
 
+#include "common/Math.h"
+
 #define APP_RESOURCE_NAME "Resources"
 
 UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
@@ -50,6 +52,8 @@ UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
 		mCamera->lookAt(20, 25, 50);
 
 		mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
+
+		setupDebug();
 
 		initResources();
 
@@ -265,11 +269,54 @@ void UserInterface::updateEntity(const VisibleEntity* p)
 
 		n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		n->attachObject(e);
+		{
+			char debugname[256];
+			snprintf(debugname, 255, "Debug %4d", mNumEntities);
+			Ogre::ManualObject* debugObject = mSceneMgr->createManualObject(debugname);
+			debugObject->begin("debugMaterial", Ogre::RenderOperation::OT_LINE_LIST);
+			debugObject->position(0, 0, 0);
+			debugObject->position(0, 10, 0);
+			debugObject->position(0, 0, 0);
+			debugObject->position(10, 0, 0);
+			debugObject->position(0, 0, 0);
+			debugObject->position(0, 0, 10);
+			debugObject->end();
+			n->attachObject(debugObject);
+		}
 
 		mEntities.insert({p, e});
 	} else {
 		e = it->second;
 		n = e->getParentSceneNode();
+	}
+
+	if(!strcmp(p->getType(), "sa8")) {
+		static Ogre::SceneNode* normalnode;
+		if(!mSceneMgr->hasManualObject("normal_line")) {
+			Ogre::ManualObject* normal = mSceneMgr->createManualObject("normal_line");
+			normal->begin("debugMaterial", Ogre::RenderOperation::OT_LINE_LIST);
+			normal->position(0, 0, 0);
+			normal->position(0, 10, 0);
+			normal->end();
+			normalnode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+			normalnode->attachObject(normal);
+		}
+
+		float h1 = getTerrainHeightAt(v.x, v.z);
+		float h2 = getTerrainHeightAt(v.x, v.z + 1.0f);
+		float h3 = getTerrainHeightAt(v.x + 1.0f, v.z);
+		Common::Vector3 p1(v.x, h1, v.z);
+		Common::Vector3 p2(v.x, h2, v.z + 1.0f);
+		Common::Vector3 p3(v.x + 1.0f, h3, v.z);
+		Common::Vector3 norm = (p2 - p1).cross(p3 - p1).normalized();
+		//auto ori = Common::Quaternion::fromAxisAngle(norm, PI);
+
+		normalnode->setPosition(v.x, v.y + 3.0f, v.z);
+		//normalnode->setOrientation(1, 0, 0, 1);
+		//std::cout << p1 << "\t" << p2 << "\t" << p3 << "\n";
+		auto ori = Common::Quaternion::getRotationTo(Common::Vector3(0, 1, 0), norm);
+		//std::cout << norm << "\t" << ori << "\n";
+		normalnode->setOrientation(ori.w, ori.x, ori.y, ori.z);
 	}
 
 	n->setOrientation(q.w, q.x, q.y, q.z);
@@ -376,6 +423,17 @@ void UserInterface::constrainCamera()
 	if(minHeight > pos.y) {
 		mCamera->setPosition(pos.x, minHeight, pos.z);
 	}
+}
+
+void UserInterface::setupDebug()
+{
+	Ogre::MaterialPtr debugMaterial = Ogre::MaterialManager::getSingleton().create("debugMaterial", "General"); 
+	debugMaterial->setReceiveShadows(false); 
+	debugMaterial->getTechnique(0)->setLightingEnabled(true); 
+	debugMaterial->getTechnique(0)->getPass(0)->setDiffuse(0,0,1,0); 
+	debugMaterial->getTechnique(0)->getPass(0)->setAmbient(0,0,1); 
+	debugMaterial->getTechnique(0)->getPass(0)->setSelfIllumination(0,0,1); 
+
 }
 
 

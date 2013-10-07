@@ -30,6 +30,9 @@ class VisibleEntity : public Entity {
 		bool collidesWith(const VisibleEntity& e) const;
 		virtual float getRadius() const; // collision detection
 
+		// yaw in range [-pi, pi]
+		float getYaw() const;
+
 	protected:
 		Common::Vector3 mPosition;
 		Common::Quaternion mRotation;

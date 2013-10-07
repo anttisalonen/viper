@@ -26,7 +26,7 @@ Game::Game()
 
 	mTrackingVehicle = p;
 
-	addPlane(Common::Vector3(200, 280, 460), Common::Quaternion(0, sqrt(2.0f) * 0.5f, 0, sqrt(2.0f) * 0.5f));
+	addPlane(Common::Vector3(200, 280, 460), Common::Quaternion(0, sqrt(2.0f) * -0.5f, 0, sqrt(2.0f) * 0.5f));
 	addSAM(Common::Vector3(200, 0, 600), 0.0f);
 }
 
@@ -80,7 +80,7 @@ Plane* Game::addPlane(const Common::Vector3& pos, const Common::Quaternion& q)
 
 SAM* Game::addSAM(const Common::Vector3& pos, float dir)
 {
-	SAM* s = new SAM(this, pos, Common::Quaternion(0, 0, 0, 1));
+	SAM* s = new SAM(this, pos, Common::Quaternion(1, 0, 0, 0));
 	mVehicles.push_back(s);
 	return s;
 }

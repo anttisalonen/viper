@@ -1,5 +1,7 @@
 #include <string.h>
 
+#include "common/Math.h"
+
 #include "Entity.h"
 
 VisibleEntity::VisibleEntity(const Common::Vector3& v,
@@ -77,4 +79,16 @@ bool VisibleEntity::collidesWith(const VisibleEntity& e) const
 	}
 }
 
+float VisibleEntity::getYaw() const
+{
+	Common::Vector3 ortho = Common::Vector3(1, 0, 0);
+	Common::Vector3 rot = Common::Math::rotate3D(ortho, mRotation);
+	// project rot to xz plane
+	rot.y = 0.0f;
+	rot.normalize();
+	float yaw = acos(rot.dot(ortho));
+	if(rot.z < 0.0f)
+		yaw = -yaw;
+	return yaw;
+}
 

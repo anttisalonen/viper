@@ -10,6 +10,9 @@
 
 #include "common/Math.h"
 
+using Common::Quaternion;
+using Common::Vector3;
+
 Vehicle::Vehicle(Game* g, const Common::Vector3& pos, const Common::Quaternion& q)
 	: VisibleEntity(pos, q, 10.0f),
 	mGame(g)
@@ -53,8 +56,7 @@ void Vehicle::update(float t)
 	if(mGrounded) {
 		if(tHeight > pos.y) {
 			setPosition(Common::Vector3(pos.x, tHeight, pos.z));
-			// TODO: this doesn't work correctly ATM
-			// setRotationToGround();
+			setRotationToGround();
 		}
 	} else {
 		// gravity
@@ -140,40 +142,30 @@ bool Vehicle::grounded() const
 
 void Vehicle::setRotationToGround()
 {
-	// keep yaw, set roll & pitch according to terrain
-	const float offs = 3.0f;
-	auto pos = getPosition();
-	auto posN = pos;  posN.x -= offs;
-	auto posS = posN; posS.x += offs;
-	auto posW = pos;  posW.z -= offs;
-	auto posE = posW; posE.z += offs;
+	const auto& orig = getRotation();
+	const auto& pos = getPosition();
+	Vector3 forward = pos + Common::Math::rotate3D(Vector3(0.0f, 0, 1.0f), orig) * 1.0f;
+	Vector3 right = pos + Common::Math::rotate3D(Vector3(-1.0f, 0, 0.0f), orig) * 1.0f;
+	float h1 = getHeightAt(pos.x, pos.z);
+	float h2 = getHeightAt(forward.x, forward.z);
+	float h3 = getHeightAt(right.x, right.z);
+	Vector3 p1(pos.x, h1, pos.z);
+	Vector3 p2(forward.x, h2, forward.z);
+	Vector3 p3(right.x, h3, right.z);
+	Vector3 norm = (p2 - p1).normalized().cross((p3 - p1).normalized());
 
-	float heightN = getHeightAt(posN.x, posN.z);
-	float heightS = getHeightAt(posS.x, posS.z);
-	float heightW = getHeightAt(posW.x, posW.z);
-	float heightE = getHeightAt(posE.x, posE.z);
+	if(norm.y < 0.0f)
+		norm = norm * -1.0f;
 
-	float hdN = heightN - heightS;
-	float hdW = heightW - heightE;
-	const float lenN = offs * 2.0f;
-
-	float angleN = atan2(hdN, lenN);
-	float angleW = atan2(hdW, lenN);
-
-	float yaw, roll, pitch;
-	getRotation().toEuler(pitch, yaw, roll);
-	
-	if(isnan(yaw)) {
-		yaw = 0.0f;
-	}
-
-	Common::Vector3 axis(angleN, 1.0f, angleW);
-	axis.normalize();
-	Common::Quaternion res = Common::Quaternion::fromAxisAngle(axis, yaw);
-
-	Common::Quaternion orig = getRotation();
-	orig = orig.slerp(res, 0.1f);
-	setRotation(orig);
+	Vector3 dir = Common::Math::rotate3D(Vector3(-1.0f, 0, 0.0f), orig);
+	dir.y = 0.0f;
+	// rotation along the plane
+	Quaternion rot = Quaternion::getRotationTo(Vector3(0, 1, 0), norm);
+	// rotation towards heading
+	// TODO: this auto-orients the vehicle along the X axis for an unknown reason.
+	Quaternion rot2 = Quaternion::getRotationTo(Vector3(-1, 0, 0), dir);
+	rot = rot * rot2;
+	setRotation(orig.slerp(rot, 0.1f));
 }
 
 float Vehicle::getHeightAt(float x, float y) const
