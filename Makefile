@@ -1,9 +1,9 @@
 CXX      ?= g++
 AR       ?= ar
-CXXFLAGS ?= -std=c++11 -O2 -g3 -Werror
+CXXFLAGS ?= -O2 -g3 -Werror
 
 # OGRE headers generate lots of hiding overloaded virtual function warnings
-CXXFLAGS += -Wall -Wno-overloaded-virtual
+CXXFLAGS += -std=c++11 -Wall -Wno-overloaded-virtual
 
 CXXFLAGS += -Isrc
 
