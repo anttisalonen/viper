@@ -20,14 +20,21 @@ Game::Game()
 
 	mUserInterface = new UserInterface(mInputHandler, mTerrain);
 
-	Plane* p = addPlane(Common::Vector3(200, 250, 50), Common::Quaternion(0, 0, 0, 1));
+	Common::Vector3 base0(dim * 0.5 - 100, 0, dim * 0.5 - 100);
+	Common::Vector3 base1(100 - dim * 0.5, 0, 100 - dim * 0.5);
+
+	Common::Quaternion q0 = Common::Quaternion::getRotationTo(Common::Vector3(0, 0, 1), Common::Vector3(-1, 0, -1));
+	Common::Quaternion q1 = Common::Quaternion::getRotationTo(Common::Vector3(0, 0, 1), Common::Vector3(1, 0, 1));
+
+	Plane* p = addPlane(0, base0 + Common::Vector3(0, 250, 0), q0);
 	p->setController(mInputHandler);
 	mInputHandler->setVehicle(p);
-
 	mTrackingVehicle = p;
 
-	addPlane(Common::Vector3(200, 280, 460), Common::Quaternion(0, sqrt(2.0f) * -0.5f, 0, sqrt(2.0f) * 0.5f));
-	addSAM(Common::Vector3(200, 0, 600), 0.0f);
+	addSAM(0, base0, q0);
+
+	addPlane(1, base1 + Common::Vector3(0, 250, 0), q1);
+	addSAM(1, base1, q1);
 }
 
 Game::~Game()
@@ -66,9 +73,9 @@ void Game::go()
 	}
 }
 
-Plane* Game::addPlane(const Common::Vector3& pos, const Common::Quaternion& q)
+Plane* Game::addPlane(int side, const Common::Vector3& pos, const Common::Quaternion& q)
 {
-	Plane* p = new Plane(this, pos, q);
+	Plane* p = new Plane(this, side, pos, q);
 	mVehicles.push_back(p);
 	for(unsigned int i = 0; i < 2; i++) {
 		Missile* m = new Missile(p);
@@ -78,10 +85,15 @@ Plane* Game::addPlane(const Common::Vector3& pos, const Common::Quaternion& q)
 	return p;
 }
 
-SAM* Game::addSAM(const Common::Vector3& pos, float dir)
+SAM* Game::addSAM(int side, const Common::Vector3& pos, const Common::Quaternion& q)
 {
-	SAM* s = new SAM(this, pos, Common::Quaternion(1, 0, 0, 0));
+	SAM* s = new SAM(this, side, pos, q);
 	mVehicles.push_back(s);
+	for(unsigned int i = 0; i < 4; i++) {
+		Missile* m = new Missile(s);
+		s->addMissile(m);
+		mMissiles.push_back(m);
+	}
 	return s;
 }
 
@@ -109,16 +121,22 @@ bool Game::update(float frameTime)
 		auto it = mVehicles.begin();
 		for(; it != mVehicles.end(); ++it) {
 			if(*it == mInputHandler->getVehicle()) {
-				++it;
 				break;
 			}
 		}
-		if(it == mVehicles.end())
-			it = mVehicles.begin();
 		if(it != mVehicles.end()) {
-			(*it)->setController(mInputHandler);
-			mInputHandler->setVehicle(*it);
-			mTrackingVehicle = *it;
+			do {
+				++it;
+				if(it == mVehicles.end()) {
+					it = mVehicles.begin();
+				}
+				if((*it)->getSide() == 0 && !(*it)->isDestroyed()) {
+					(*it)->setController(mInputHandler);
+					mInputHandler->setVehicle(*it);
+					mTrackingVehicle = *it;
+					break;
+				}
+			} while(*it != mInputHandler->getVehicle());
 		}
 	}
 

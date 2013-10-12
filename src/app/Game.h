@@ -26,8 +26,8 @@ class Game {
 		void toggleInputHandler();
 
 	private:
-		Plane* addPlane(const Common::Vector3& pos, const Common::Quaternion& q);
-		SAM* addSAM(const Common::Vector3& pos, float dir);
+		Plane* addPlane(int side, const Common::Vector3& pos, const Common::Quaternion& q);
+		SAM* addSAM(int side, const Common::Vector3& pos, const Common::Quaternion& q);
 
 		InputHandler* mInputHandler;
 		UserInterface* mUserInterface;

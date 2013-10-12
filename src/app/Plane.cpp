@@ -1,12 +1,31 @@
 #include "Plane.h"
 #include "Game.h"
 #include "Terrain.h"
+#include "Missile.h"
 #include "common/Math.h"
 
-Plane::Plane(Game* g, const Common::Vector3& pos, const Common::Quaternion& q)
-	: Vehicle(g, pos, q)
+Plane::Plane(Game* g, int side, const Common::Vector3& pos, const Common::Quaternion& q)
+	: Vehicle(g, side, pos, q)
 {
 	setVelocity(Common::Vector3(0, 0, 10));
+}
+
+void Plane::addMissile(Missile* m)
+{
+	Common::Vector3 offset(-4.80f, -0.18f, -1.0f);
+	switch(mMissiles.size()) {
+		case 0:
+			break;
+
+		case 1:
+			offset.x = -offset.x;
+			break;
+
+		default:
+			throw std::runtime_error("Plane only supports two missiles");
+	}
+	m->setOffset(offset);
+	mMissiles.push_back(m);
 }
 
 void Plane::update(float t)

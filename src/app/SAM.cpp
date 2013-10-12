@@ -1,13 +1,24 @@
 #include "SAM.h"
 #include "Game.h"
 #include "Terrain.h"
+#include "Missile.h"
 #include "common/Math.h"
 
-SAM::SAM(Game* g, const Common::Vector3& pos, const Common::Quaternion& q)
-	: Vehicle(g, pos, q)
+SAM::SAM(Game* g, int side, const Common::Vector3& pos, const Common::Quaternion& q)
+	: Vehicle(g, side, pos, q)
 {
 	float height = getGame()->getTerrain()->getHeightAt(pos.x, pos.z);
 	setPosition(Common::Vector3(pos.x, height + 6.0f, pos.z));
+}
+
+void SAM::addMissile(Missile* m)
+{
+	Common::Vector3 offset(-1.80f, 0.18f, 1.0f);
+	offset.x += 0.5f * mMissiles.size();
+	if(mMissiles.size() == 4)
+		throw std::runtime_error("SAM only supports four missiles");
+	m->setOffset(offset);
+	mMissiles.push_back(m);
 }
 
 const char* SAM::getType() const

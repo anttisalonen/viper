@@ -5,9 +5,10 @@
 
 class Plane : public Vehicle {
 	public:
-		Plane(Game* g, const Common::Vector3& pos, const Common::Quaternion& q);
+		Plane(Game* g, int side, const Common::Vector3& pos, const Common::Quaternion& q);
 		virtual void update(float t) override;
 		virtual const char* getType() const override;
+		virtual void addMissile(Missile* m) override;
 };
 
 #endif

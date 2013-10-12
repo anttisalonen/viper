@@ -15,21 +15,23 @@ class Game;
 
 class Vehicle : public VisibleEntity {
 	public:
-		Vehicle(Game* g, const Common::Vector3& pos, const Common::Quaternion& q);
+		Vehicle(Game* g, int side, const Common::Vector3& pos, const Common::Quaternion& q);
 		virtual void update(float t) override;
 		void setTargetVelocity(PrincipalAxis a, float v);
 		void setTargetVelocity(float v);
 		void setController(VehicleController* p);
 		void shoot();
-		void addMissile(Missile* m);
+		virtual void addMissile(Missile* m) = 0;
 		void destroy();
 		bool isDestroyed() const;
+		int getSide() const;
 
 	protected:
 		Game* getGame();
 		const Game* getGame() const;
 		float mRotationTargetVelocities[3];
 		float mTargetVelocity = 0.0f;
+		std::vector<Missile*> mMissiles;
 		bool grounded() const;
 
 	private:
@@ -38,9 +40,9 @@ class Vehicle : public VisibleEntity {
 		float getHeightAt(float x, float y) const;
 
 		Game* mGame = nullptr;
+		int mSide = 0;
 		VehicleController* mController = nullptr;
 		bool mShooting = false;
-		std::vector<Missile*> mMissiles;
 		Vehicle* mTarget = nullptr;
 		Common::Countdown mTargetUpdateTimer = Common::Countdown(0.1f);
 		bool mDestroyed = false;

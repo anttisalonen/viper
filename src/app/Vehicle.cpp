@@ -13,11 +13,17 @@
 using Common::Quaternion;
 using Common::Vector3;
 
-Vehicle::Vehicle(Game* g, const Common::Vector3& pos, const Common::Quaternion& q)
+Vehicle::Vehicle(Game* g, int side, const Common::Vector3& pos, const Common::Quaternion& q)
 	: VisibleEntity(pos, q, 10.0f),
-	mGame(g)
+	mGame(g),
+	mSide(side)
 {
 	memset(mRotationTargetVelocities, 0x00, sizeof(mRotationTargetVelocities));
+}
+
+int Vehicle::getSide() const
+{
+	return mSide;
 }
 
 void Vehicle::update(float t)
@@ -31,7 +37,7 @@ void Vehicle::update(float t)
 		mTarget = nullptr;
 		auto vehicles = mGame->getVehicles();
 		for(auto p : vehicles) {
-			if(p != this) {
+			if(mSide != p->getSide()) {
 				mTarget = p;
 				break;
 			}
@@ -95,24 +101,6 @@ void Vehicle::checkShooting()
 			mMissiles.pop_back();
 		}
 	}
-}
-
-void Vehicle::addMissile(Missile* m)
-{
-	Common::Vector3 offset(-4.80f, -0.18f, -1.0f);
-	switch(mMissiles.size()) {
-		case 0:
-			break;
-
-		case 1:
-			offset.x = -offset.x;
-			break;
-
-		default:
-			throw std::runtime_error("Plane only supports two missiles");
-	}
-	m->setOffset(offset);
-	mMissiles.push_back(m);
 }
 
 void Vehicle::destroy()

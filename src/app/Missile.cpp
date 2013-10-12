@@ -35,7 +35,7 @@ void Missile::update(float t)
 
 		/* only check collision against target - very crude for now
 		 * (ignore tunneling, spheres as objects) */
-		if(collidesWith(*mTarget)) {
+		if(mTarget && collidesWith(*mTarget)) {
 			mTarget->destroy();
 			mTarget = nullptr;
 			mFuelTime = 0.0f;
