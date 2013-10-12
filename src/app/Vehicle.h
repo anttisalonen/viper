@@ -21,6 +21,7 @@ class Vehicle : public VisibleEntity {
 		void setTargetVelocity(float v);
 		void setController(VehicleController* p);
 		void shoot();
+		bool toggleBraking();
 		virtual void addMissile(Missile* m) = 0;
 		void destroy();
 		bool isDestroyed() const;
@@ -29,10 +30,11 @@ class Vehicle : public VisibleEntity {
 	protected:
 		Game* getGame();
 		const Game* getGame() const;
+		bool grounded() const;
 		float mRotationTargetVelocities[3];
 		float mTargetVelocity = 0.0f;
+		bool mBraking = false;
 		std::vector<Missile*> mMissiles;
-		bool grounded() const;
 
 	private:
 		void checkShooting();

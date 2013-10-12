@@ -7,8 +7,6 @@
 SAM::SAM(Game* g, int side, const Common::Vector3& pos, const Common::Quaternion& q)
 	: Vehicle(g, side, pos, q)
 {
-	float height = getGame()->getTerrain()->getHeightAt(pos.x, pos.z);
-	setPosition(Common::Vector3(pos.x, height + 6.0f, pos.z));
 }
 
 void SAM::addMissile(Missile* m)

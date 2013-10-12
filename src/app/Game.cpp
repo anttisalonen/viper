@@ -12,28 +12,37 @@
 Game::Game()
 	: mInputHandler(new InputHandler())
 {
+	using Common::Vector3;
 	Constants terrainConstants("share/terrain/constants.json");
 	float scale = terrainConstants.getFloat("height_scale");
 	float offset = terrainConstants.getFloat("height_offset");
 	unsigned int dim = terrainConstants.getUInt("dimension");
 	mTerrain = new Terrain(scale, offset, dim);
 
+	Vector3 base0(dim * 0.5 - 100, 0, dim * 0.5 - 100);
+	Vector3 base1(100 - dim * 0.5, 0, 100 - dim * 0.5);
+
+	Vector3 base0_min = base0 + Vector3(-500, 0, -50);
+	Vector3 base0_max = base0 + Vector3(50, 0, 50);
+	Vector3 base1_min = base1 + Vector3(-50, 0, -50);
+	Vector3 base1_max = base1 + Vector3(50, 0, 500);
+
+	mTerrain->addHeightModifier(base0_min.x, base0_min.z, base0_max.x, base0_max.z, mTerrain->getHeightAt(base0.x, base0.z));
+	mTerrain->addHeightModifier(base1_min.x, base1_min.z, base1_max.x, base1_max.z, mTerrain->getHeightAt(base1.x, base1.z));
+
 	mUserInterface = new UserInterface(mInputHandler, mTerrain);
 
-	Common::Vector3 base0(dim * 0.5 - 100, 0, dim * 0.5 - 100);
-	Common::Vector3 base1(100 - dim * 0.5, 0, 100 - dim * 0.5);
+	Common::Quaternion q0 = Common::Quaternion::getRotationTo(Vector3(0, 0, 1), Vector3(-1, 0, 0));
+	Common::Quaternion q1 = Common::Quaternion::getRotationTo(Vector3(0, 0, 1), Vector3(0, 0, 1));
 
-	Common::Quaternion q0 = Common::Quaternion::getRotationTo(Common::Vector3(0, 0, 1), Common::Vector3(-1, 0, -1));
-	Common::Quaternion q1 = Common::Quaternion::getRotationTo(Common::Vector3(0, 0, 1), Common::Vector3(1, 0, 1));
-
-	Plane* p = addPlane(0, base0 + Common::Vector3(0, 250, 0), q0);
+	Plane* p = addPlane(0, base0 - Vector3(0, 0, 30), q0);
 	p->setController(mInputHandler);
 	mInputHandler->setVehicle(p);
 	mTrackingVehicle = p;
 
 	addSAM(0, base0, q0);
 
-	addPlane(1, base1 + Common::Vector3(0, 250, 0), q1);
+	addPlane(1, base1 + Vector3(30, 0, 0), q1);
 	addSAM(1, base1, q1);
 }
 

@@ -19,6 +19,8 @@ Vehicle::Vehicle(Game* g, int side, const Common::Vector3& pos, const Common::Qu
 	mSide(side)
 {
 	memset(mRotationTargetVelocities, 0x00, sizeof(mRotationTargetVelocities));
+	float height = getGame()->getTerrain()->getHeightAt(pos.x, pos.z);
+	setPosition(Common::Vector3(pos.x, height, pos.z));
 }
 
 int Vehicle::getSide() const
@@ -56,14 +58,11 @@ void Vehicle::update(float t)
 
 	// check whether on ground
 	auto pos = getPosition();
-	float tHeight = getHeightAt(pos.x, pos.z);
-	float minHeight = tHeight;
-	mGrounded = minHeight > pos.y;
+	float tHeight = getHeightAt(pos.x, pos.z) + 1.0f;
+	mGrounded = tHeight + 0.6f > pos.y;
 	if(mGrounded) {
-		if(tHeight > pos.y) {
-			setPosition(Common::Vector3(pos.x, tHeight, pos.z));
-			setRotationToGround();
-		}
+		setPosition(Common::Vector3(pos.x, tHeight + 0.5f, pos.z));
+		setRotationToGround();
 	} else {
 		// gravity
 		mVelocity += Common::Vector3(0.0f, -18.0f * t, 0.0f);
@@ -159,6 +158,12 @@ void Vehicle::setRotationToGround()
 float Vehicle::getHeightAt(float x, float y) const
 {
 	return std::max<float>(0.0f, getGame()->getTerrain()->getHeightAt(x, y));
+}
+
+bool Vehicle::toggleBraking()
+{
+	mBraking = !mBraking;
+	return mBraking;
 }
 
 

@@ -7,7 +7,7 @@
 Plane::Plane(Game* g, int side, const Common::Vector3& pos, const Common::Quaternion& q)
 	: Vehicle(g, side, pos, q)
 {
-	setVelocity(Common::Vector3(0, 0, 10));
+	mBraking = true;
 }
 
 void Plane::addMissile(Missile* m)
@@ -54,15 +54,26 @@ void Plane::update(float t)
 	}
 
 	// update velocity
-	if(!isDestroyed()) {
-		mVelocity = Common::Math::rotate3D(Common::Vector3(0, 0, 1), mRotation) * 40.0f;
+	float speed = mVelocity.length();
+	float speed_mod = 0.0f;
+	if(grounded()) {
+		if(!mBraking) {
+			speed_mod = 50.0f;
+		} else {
+			speed_mod = -3.0f;
+		}
+	} else {
+		if(!mBraking) {
+			speed_mod = 100.0f;
+		} else {
+			if(speed > 20.0f)
+				speed_mod = -2.0f;
+		}
 	}
+	speed = Common::clamp(0.0f, speed + speed_mod * t, 40.0f);
+	mVelocity = Common::Math::rotate3D(Common::Vector3(0, 0, 1), mRotation) * speed;
 
 	Vehicle::update(t);
-
-	if(grounded()) {
-		destroy();
-	}
 }
 
 const char* Plane::getType() const

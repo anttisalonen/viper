@@ -27,7 +27,12 @@ Terrain::Terrain(float scale, float offset, float dimension)
 //  3. Find the index by y * cache width + x
 float Terrain::getHeightAt(float x, float y) const
 {
-#if 1
+	for(const auto& mod : mModifiers) {
+		if(x >= mod.x1 && x <= mod.x2 && y >= mod.y1 && y <= mod.y2) {
+			return mod.h;
+		}
+	}
+
 	float fx = x + mDimension / 2;
 	float fy = y + mDimension / 2;
 
@@ -50,19 +55,7 @@ float Terrain::getHeightAt(float x, float y) const
 	float c = h3 * (1.0f - dx) * dy;
 	float d = h4 * dx * dy;
 	float res = a + b + c + d;
-#else
-	float res = mOffset + mScale * mPerlin.GetValue(x * 0.001f, y * 0.001f, 0.0f);
-#endif
 
-#if 0
-	static int cnt = 0;
-	if(cnt > 2000) {
-		std::cout << x << "\t" << y << "\t" << res << "\n";
-	}
-	cnt++;
-	if(cnt > 2200)
-		exit(1);
-#endif
 	return res;
 }
 
@@ -84,4 +77,10 @@ float Terrain::getDimension() const
 {
 	return mDimension;
 }
+
+void Terrain::addHeightModifier(float x1, float y1, float x2, float y2, float h)
+{
+	mModifiers.push_back(Modifier(x1, y1, x2, y2, h));
+}
+
 

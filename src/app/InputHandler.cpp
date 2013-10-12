@@ -177,6 +177,12 @@ bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
 			mShooting = true;
 			break;
 
+		case OIS::KC_B:
+			if(mVehicle) {
+				mVehicle->toggleBraking();
+			}
+			break;
+
 		case OIS::KC_C:
 			switch(mViewSetting) {
 				case ViewSetting::Cockpit:
