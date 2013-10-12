@@ -22,13 +22,22 @@ Game::Game()
 	Vector3 base0(dim * 0.5 - 100, 0, dim * 0.5 - 100);
 	Vector3 base1(100 - dim * 0.5, 0, 100 - dim * 0.5);
 
-	Vector3 base0_min = base0 + Vector3(-500, 0, -50);
+	float base_len = 300.0f;
+	float base_width = 50.0f;
+
+	Vector3 base0_min = base0 + Vector3(-base_len, 0, -base_width);
 	Vector3 base0_max = base0 + Vector3(50, 0, 50);
 	Vector3 base1_min = base1 + Vector3(-50, 0, -50);
-	Vector3 base1_max = base1 + Vector3(50, 0, 500);
+	Vector3 base1_max = base1 + Vector3(base_width, 0, base_len);
 
-	mTerrain->addHeightModifier(base0_min.x, base0_min.z, base0_max.x, base0_max.z, mTerrain->getHeightAt(base0.x, base0.z));
-	mTerrain->addHeightModifier(base1_min.x, base1_min.z, base1_max.x, base1_max.z, mTerrain->getHeightAt(base1.x, base1.z));
+	float base0_height = mTerrain->getHeightAt(base0_min.x + base_len * 0.5f, base0_min.z);
+	float base1_height = mTerrain->getHeightAt(base1_max.x, base1_max.z - base_len * 0.5f);
+
+	assert(base0_height > 5.0f);
+	assert(base1_height > 5.0f);
+
+	mTerrain->addHeightModifier(base0_min.x, base0_min.z, base0_max.x, base0_max.z, base0_height);
+	mTerrain->addHeightModifier(base1_min.x, base1_min.z, base1_max.x, base1_max.z, base1_height);
 
 	mUserInterface = new UserInterface(mInputHandler, mTerrain);
 
