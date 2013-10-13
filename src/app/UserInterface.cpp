@@ -16,9 +16,15 @@ UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
 	mTerrain(t)
 {
 	mRoot = new Ogre::Root("", "", "");
-	mRoot->loadPlugin(OGRE_PLUGIN_DIR "/RenderSystem_GL");
-	mRoot->loadPlugin(OGRE_PLUGIN_DIR "/Plugin_OctreeSceneManager");
-	mRoot->loadPlugin(OGRE_PLUGIN_DIR "/Plugin_ParticleFX");
+	const char* ogrePluginDir = getenv("OGRE_PLUGIN_DIR");
+	if(!ogrePluginDir)
+		ogrePluginDir = OGRE_PLUGIN_DIR;
+	if(!ogrePluginDir)
+		ogrePluginDir = ".";
+	std::string ogrePluginDirStr = std::string(ogrePluginDir);
+	mRoot->loadPlugin(ogrePluginDirStr + "/RenderSystem_GL");
+	mRoot->loadPlugin(ogrePluginDirStr + "/Plugin_OctreeSceneManager");
+	mRoot->loadPlugin(ogrePluginDirStr + "/Plugin_ParticleFX");
 
 	const Ogre::RenderSystemList& rsys = mRoot->getAvailableRenderers();
 	if(rsys.size() == 0) {
