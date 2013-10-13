@@ -46,6 +46,7 @@ class UserInterface {
 		void checkAddParticleSystem(const VisibleEntity* m, const char* type);
 		void constrainCamera();
 		void setupDebug();
+		void updateTextLabels();
 
 		Ogre::Root* mRoot = nullptr;
 		Ogre::RenderWindow* mWindow = nullptr;

@@ -1,5 +1,6 @@
 #include "UserInterface.h"
 
+#include "TextRenderer.h"
 #include "InputHandler.h"
 #include "Game.h"
 #include "Entity.h"
@@ -67,6 +68,9 @@ UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
 
 		setupScene();
 		checkWindowResize();
+
+		new TextRenderer();
+		TextRenderer::getSingleton().addTextBox("position", "Position: ", 10, 10, 100, 20, Ogre::ColourValue::White);
 	}
 }
 
@@ -77,6 +81,7 @@ void UserInterface::initResources()
 	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/graphics/ocean", "FileSystem", APP_RESOURCE_NAME, false);
 	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/graphics/terrain", "FileSystem", APP_RESOURCE_NAME, false);
 	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/graphics/vehicles", "FileSystem", APP_RESOURCE_NAME, false);
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("share/graphics/ui", "FileSystem", APP_RESOURCE_NAME, false);
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(APP_RESOURCE_NAME);
 	Ogre::ResourceGroupManager::getSingleton().loadResourceGroup(APP_RESOURCE_NAME);
 }
@@ -409,6 +414,14 @@ void UserInterface::setCamera(const Common::Vector3& offset,
 	mCamera->setPosition(l + (q * o));
 	mCamera->lookAt(l);
 	constrainCamera();
+	updateTextLabels();
+}
+
+void UserInterface::updateTextLabels()
+{
+	const Ogre::Vector3& pos = mCamera->getPosition();
+	TextRenderer::getSingleton().printf("position", "Position: %3.2f %3.2f %3.2f",
+			pos.x, pos.y, pos.z);
 }
 
 void UserInterface::setCamera(const Common::Vector3& position,
@@ -420,6 +433,7 @@ void UserInterface::setCamera(const Common::Vector3& position,
 	mCamera->setOrientation(Ogre::Quaternion(rot.w, -rot.x, rot.y, -rot.z));
 	mCamera->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(180));
 	constrainCamera();
+	updateTextLabels();
 }
 
 void UserInterface::constrainCamera()
