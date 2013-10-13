@@ -25,6 +25,8 @@ class InputHandler : public VehicleController, public OIS::KeyListener, public O
 		ViewSetting getCurrentViewSetting() const;
 		const Common::Quaternion& getViewRotation() const;
 		bool checkVehicleChangeRequest();
+		bool checkGeneralToggle();
+		int getSide() const override;
 
 	private:
 		void printInfo();
@@ -43,6 +45,7 @@ class InputHandler : public VehicleController, public OIS::KeyListener, public O
 		Common::Quaternion mViewRotation;
 
 		bool mRequestingVehicleChange = false;
+		bool mToggleGeneral = false;
 };
 
 #endif

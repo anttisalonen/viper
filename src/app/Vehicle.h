@@ -25,7 +25,8 @@ class Vehicle : public VisibleEntity {
 		virtual void update(float t) override;
 		void setTargetVelocity(PrincipalAxis a, float v);
 		void setTargetVelocity(float v);
-		void setController(VehicleController* p);
+		VehicleController* setController(VehicleController* p);
+		const VehicleController* getController() const;
 		void shoot();
 		bool toggleBraking();
 		virtual bool acceptsMissiles() const;

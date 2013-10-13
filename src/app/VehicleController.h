@@ -11,6 +11,8 @@ class VehicleController {
 		virtual void update(float t) { }
 		virtual void vehicleReset() { }
 		const Vehicle* getVehicle() const { return mVehicle; }
+		Vehicle* getVehicle() { return mVehicle; }
+		virtual int getSide() const = 0;
 
 	protected:
 		Vehicle* mVehicle;

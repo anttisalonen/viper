@@ -50,6 +50,16 @@ void InputHandler::requestVehicleChange()
 	mRequestingVehicleChange = true;
 }
 
+bool InputHandler::checkGeneralToggle()
+{
+	if(mToggleGeneral) {
+		mToggleGeneral = false;
+		return true;
+	} else {
+		return false;
+	}
+}
+
 bool InputHandler::checkVehicleChangeRequest()
 {
 	if(mRequestingVehicleChange) {
@@ -207,6 +217,10 @@ bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
 			requestVehicleChange();
 			break;
 
+		case OIS::KC_G:
+			mToggleGeneral = true;
+			break;
+
 		default:
 			break;
 	}
@@ -268,6 +282,11 @@ ViewSetting InputHandler::getCurrentViewSetting() const
 const Common::Quaternion& InputHandler::getViewRotation() const
 {
 	return mViewRotation;
+}
+
+int InputHandler::getSide() const
+{
+	return 0;
 }
 
 

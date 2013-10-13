@@ -134,9 +134,16 @@ void Vehicle::setTargetVelocity(float v)
 	mTargetVelocity = v;
 }
 
-void Vehicle::setController(VehicleController* p)
+VehicleController* Vehicle::setController(VehicleController* p)
 {
+	auto oldc = mController;
 	mController = p;
+	return oldc;
+}
+
+const VehicleController* Vehicle::getController() const
+{
+	return mController;
 }
 
 void Vehicle::shoot()

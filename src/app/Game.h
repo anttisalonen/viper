@@ -15,6 +15,7 @@ class Plane;
 class SAM;
 class Missile;
 class Terrain;
+class VehicleController;
 
 class Game {
 	public:
@@ -28,8 +29,11 @@ class Game {
 
 	private:
 		Vehicle* addVehicle(VehicleType t, int side);
+		bool assignController(VehicleController* c, Vehicle* v);
+		bool tryAssignController(VehicleController* c);
 
 		InputHandler* mInputHandler;
+		std::vector<VehicleController*> mAIControllers;
 		UserInterface* mUserInterface;
 		Terrain* mTerrain;
 		std::list<Vehicle*> mVehicles;

@@ -8,6 +8,8 @@
 #include "SAM.h"
 #include "Tank.h"
 
+#include "AIController.h"
+
 #include "common/Math.h"
 
 Game::Game()
@@ -45,8 +47,7 @@ Game::Game()
 	srand(21);
 
 	Vehicle* p = addVehicle(VehicleType::Plane, 0);
-	p->setController(mInputHandler);
-	mInputHandler->setVehicle(p);
+	assignController(mInputHandler, p);
 	mTrackingVehicle = p;
 
 	addVehicle(VehicleType::SAM, 0);
@@ -80,6 +81,36 @@ Game::~Game()
 	mUserInterface = nullptr;
 	delete mTerrain;
 	mTerrain = nullptr;
+}
+
+/* return true if a controller was replaced */
+bool Game::assignController(VehicleController* c, Vehicle* v)
+{
+	auto oldvehicle = c->getVehicle();
+	if(oldvehicle)
+		oldvehicle->setController(nullptr);
+
+	auto oldcontroller = v->setController(c);
+	c->setVehicle(v);
+	if(oldcontroller) {
+		oldcontroller->setVehicle(nullptr);
+		tryAssignController(oldcontroller);
+		return true;
+	}
+	return false;
+}
+
+/* return true if the controller could be assigned somewhere */
+bool Game::tryAssignController(VehicleController* c)
+{
+	for(auto v : mVehicles) {
+		if(v->getSide() == c->getSide() && v->getController() == nullptr) {
+			bool ret = assignController(c, v);
+			assert(ret == false);
+			return true;
+		}
+	}
+	return false;
 }
 
 void Game::go()
@@ -133,6 +164,11 @@ Vehicle* Game::addVehicle(VehicleType t, int side)
 		v->addMissile(m);
 		mMissiles.push_back(m);
 	}
+
+	VehicleController* ai = new AIController(side);
+	assignController(ai, v);
+	mAIControllers.push_back(ai);
+
 	return v;
 }
 
@@ -165,13 +201,23 @@ bool Game::update(float frameTime)
 		}
 	}
 
+	if(mInputHandler->checkGeneralToggle()) {
+		if(mTrackingVehicle) {
+			mTrackingVehicle->setController(nullptr);
+			mTrackingVehicle = nullptr;
+		}
+	}
+
 	if(mInputHandler->checkVehicleChangeRequest()) {
 		auto it = mVehicles.begin();
-		for(; it != mVehicles.end(); ++it) {
-			if(*it == mInputHandler->getVehicle()) {
-				break;
+		if(mInputHandler->getVehicle()) {
+			for(; it != mVehicles.end(); ++it) {
+				if(*it == mInputHandler->getVehicle()) {
+					break;
+				}
 			}
 		}
+
 		if(it != mVehicles.end()) {
 			do {
 				++it;
@@ -179,8 +225,7 @@ bool Game::update(float frameTime)
 					it = mVehicles.begin();
 				}
 				if((*it)->getSide() == 0 && !(*it)->isDestroyed()) {
-					(*it)->setController(mInputHandler);
-					mInputHandler->setVehicle(*it);
+					assignController(mInputHandler, *it);
 					mTrackingVehicle = *it;
 					break;
 				}
