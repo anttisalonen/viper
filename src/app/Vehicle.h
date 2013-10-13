@@ -26,11 +26,11 @@ class Vehicle : public VisibleEntity {
 		void destroy();
 		bool isDestroyed() const;
 		int getSide() const;
+		bool grounded() const;
 
 	protected:
 		Game* getGame();
 		const Game* getGame() const;
-		bool grounded() const;
 		float mRotationTargetVelocities[3];
 		float mTargetVelocity = 0.0f;
 		bool mBraking = false;

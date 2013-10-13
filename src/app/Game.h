@@ -37,6 +37,9 @@ class Game {
 		Vehicle* mTrackingVehicle;
 
 		Common::Clock mFPSTimer;
+
+		Common::Vector3 mBaseFlags[2];
+		int mWinner = -1;
 };
 
 #endif

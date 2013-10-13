@@ -30,6 +30,9 @@ Game::Game()
 	Vector3 base1_min = base1 + Vector3(-50, 0, -50);
 	Vector3 base1_max = base1 + Vector3(base_width, 0, base_len);
 
+	mBaseFlags[0] = base0_max + Vector3(-10, 0, -10); mBaseFlags[0].y = mTerrain->getHeightAt(mBaseFlags[0].x, mBaseFlags[0].z);
+	mBaseFlags[1] = base1_min + Vector3(10, 0, 10);   mBaseFlags[1].y = mTerrain->getHeightAt(mBaseFlags[1].x, mBaseFlags[1].z);
+
 	float base0_height = mTerrain->getHeightAt(base0_min.x + base_len * 0.5f, base0_min.z);
 	float base1_height = mTerrain->getHeightAt(base1_max.x, base1_max.z - base_len * 0.5f);
 
@@ -120,6 +123,15 @@ bool Game::update(float frameTime)
 	for(auto p : mVehicles) {
 		p->update(frameTime);
 		mUserInterface->updateVehicle(p);
+		if(mWinner == -1 && !p->isDestroyed() && p->grounded()) {
+			if(p->getSide() == 0 && p->getPosition().distance(mBaseFlags[1]) < 20.0f) {
+				mWinner = 0;
+				std::cout << "0 won!\n";
+			} else if(p->getSide() == 1 && p->getPosition().distance(mBaseFlags[0]) < 20.0f) {
+				mWinner = 1;
+				std::cout << "1 won!\n";
+			}
+		}
 	}
 
 	for(auto mit = mMissiles.begin(); mit != mMissiles.end(); ) {
