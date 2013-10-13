@@ -15,9 +15,9 @@ enum class PrincipalAxis {
 	Roll,
 };
 
-class VisibleEntity : public Entity {
+class PhysicalEntity : public Entity {
 	public:
-		VisibleEntity(const Common::Vector3& v,
+		PhysicalEntity(const Common::Vector3& v,
 				const Common::Quaternion& q, float radius);
 		virtual void update(float t);
 		const Common::Vector3& getPosition() const;
@@ -26,8 +26,7 @@ class VisibleEntity : public Entity {
 		void setVelocity(const Common::Vector3& v);
 		void setRotation(const Common::Quaternion& q);
 		const Common::Vector3& getVelocity() const;
-		virtual const char* getType() const = 0; // which mesh to use
-		bool collidesWith(const VisibleEntity& e) const;
+		bool collidesWith(const PhysicalEntity& e) const;
 		virtual float getRadius() const; // collision detection
 
 		// yaw in range [-pi, pi]
@@ -39,6 +38,13 @@ class VisibleEntity : public Entity {
 		Common::Vector3 mVelocity;
 		float mRotationVelocities[3];
 		float mRadius;
+};
+
+class VisibleEntity : public PhysicalEntity {
+	public:
+		VisibleEntity(const Common::Vector3& v,
+				const Common::Quaternion& q, float radius);
+		virtual const char* getType() const = 0; // which mesh to use
 };
 
 

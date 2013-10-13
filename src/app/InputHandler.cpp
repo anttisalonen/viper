@@ -239,14 +239,19 @@ bool InputHandler::keyReleased(const OIS::KeyEvent &arg)
 
 bool InputHandler::mouseMoved(const OIS::MouseEvent& arg)
 {
-	mViewRotation = mViewRotation * Common::Quaternion::fromAxisAngle(Common::Vector3(1, 0, 0), arg.state.X.rel * 0.01f) *
-		Common::Quaternion::fromAxisAngle(Common::Vector3(0, 1, 0), arg.state.Y.rel * 0.01f);
+	auto q1 = Common::Quaternion::fromAxisAngle(Common::Vector3(1, 0, 0), arg.state.Y.rel * 0.01f);
+	auto q2 = Common::Quaternion::fromAxisAngle(Common::Vector3(0, 1, 0), -arg.state.X.rel * 0.01f);
+	mViewRotation = q2 * mViewRotation * q1;
 
 	return true;
 }
 
 bool InputHandler::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID button)
 {
+	if(button == OIS::MB_Left) {
+		mShooting = true;
+	}
+
 	return true;
 }
 

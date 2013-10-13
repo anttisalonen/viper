@@ -195,7 +195,8 @@ bool Game::update(float frameTime)
 					Common::Vector3 viewpoint = mTrackingVehicle->getPosition() +
 						Common::Math::rotate3D(Common::Vector3(0, 2, 5),
 								mTrackingVehicle->getRotation()) * 5.0f;
-					mUserInterface->setCamera(viewpoint, mTrackingVehicle->getRotation());
+					auto vr = mInputHandler->getViewRotation();
+					mUserInterface->setCamera(viewpoint, mTrackingVehicle->getRotation() * vr);
 				}
 				break;
 
@@ -208,6 +209,7 @@ bool Game::update(float frameTime)
 				}
 				break;
 		}
+		mTrackingVehicle->setTurretRotation(mInputHandler->getViewRotation());
 	}
 
 	return mInputHandler->running();

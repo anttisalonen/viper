@@ -35,6 +35,7 @@ class Vehicle : public VisibleEntity {
 		int getSide() const;
 		bool grounded() const;
 		virtual VehicleType getVehicleType() const = 0;
+		void setTurretRotation(const Common::Quaternion& q);
 
 	protected:
 		Game* getGame();
@@ -43,6 +44,7 @@ class Vehicle : public VisibleEntity {
 		float mTargetVelocity = 0.0f;
 		bool mBraking = false;
 		std::vector<Missile*> mMissiles;
+		int mShells = 0;
 
 	private:
 		void checkShooting();
@@ -57,6 +59,8 @@ class Vehicle : public VisibleEntity {
 		Common::Countdown mTargetUpdateTimer = Common::Countdown(0.1f);
 		bool mDestroyed = false;
 		bool mGrounded = false;
+		std::vector<PhysicalEntity> mProjectiles;
+		Common::Quaternion mTurretRotation;
 };
 
 #endif

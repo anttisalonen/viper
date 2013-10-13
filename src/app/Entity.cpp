@@ -4,7 +4,7 @@
 
 #include "Entity.h"
 
-VisibleEntity::VisibleEntity(const Common::Vector3& v,
+PhysicalEntity::PhysicalEntity(const Common::Vector3& v,
 		const Common::Quaternion& q, float radius)
 	: mPosition(v),
 	mRotation(q),
@@ -13,37 +13,37 @@ VisibleEntity::VisibleEntity(const Common::Vector3& v,
 	memset(mRotationVelocities, 0x00, sizeof(mRotationVelocities));
 }
 
-const Common::Vector3& VisibleEntity::getPosition() const
+const Common::Vector3& PhysicalEntity::getPosition() const
 {
 	return mPosition;
 }
 
-const Common::Quaternion& VisibleEntity::getRotation() const
+const Common::Quaternion& PhysicalEntity::getRotation() const
 {
 	return mRotation;
 }
 
-const Common::Vector3& VisibleEntity::getVelocity() const
+const Common::Vector3& PhysicalEntity::getVelocity() const
 {
 	return mVelocity;
 }
 
-void VisibleEntity::setPosition(const Common::Vector3& v)
+void PhysicalEntity::setPosition(const Common::Vector3& v)
 {
 	mPosition = v;
 }
 
-void VisibleEntity::setVelocity(const Common::Vector3& v)
+void PhysicalEntity::setVelocity(const Common::Vector3& v)
 {
 	mVelocity = v;
 }
 
-void VisibleEntity::setRotation(const Common::Quaternion& q)
+void PhysicalEntity::setRotation(const Common::Quaternion& q)
 {
 	mRotation = q;
 }
 
-void VisibleEntity::update(float t)
+void PhysicalEntity::update(float t)
 {
 	// update position
 	mPosition += mVelocity * t;
@@ -62,12 +62,12 @@ void VisibleEntity::update(float t)
 	mRotation = mRotation.versor();
 }
 
-float VisibleEntity::getRadius() const
+float PhysicalEntity::getRadius() const
 {
 	return mRadius;
 }
 
-bool VisibleEntity::collidesWith(const VisibleEntity& e) const
+bool PhysicalEntity::collidesWith(const PhysicalEntity& e) const
 {
 	float dist2 = (getPosition() - e.getPosition()).length2();
 	float rr = e.getRadius() + getRadius();
@@ -79,7 +79,7 @@ bool VisibleEntity::collidesWith(const VisibleEntity& e) const
 	}
 }
 
-float VisibleEntity::getYaw() const
+float PhysicalEntity::getYaw() const
 {
 	Common::Vector3 ortho = Common::Vector3(1, 0, 0);
 	Common::Vector3 rot = Common::Math::rotate3D(ortho, mRotation);
@@ -91,4 +91,11 @@ float VisibleEntity::getYaw() const
 		yaw = -yaw;
 	return yaw;
 }
+
+VisibleEntity::VisibleEntity(const Common::Vector3& v,
+		const Common::Quaternion& q, float radius)
+	: PhysicalEntity(v, q, radius)
+{
+}
+
 

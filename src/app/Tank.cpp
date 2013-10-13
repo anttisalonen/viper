@@ -7,6 +7,7 @@
 Tank::Tank(Game* g, int side, const Common::Vector3& pos, const Common::Quaternion& q)
 	: LandVehicle(g, side, pos, q)
 {
+	mShells = 20;
 }
 
 const char* Tank::getType() const

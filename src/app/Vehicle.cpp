@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdexcept>
 #include <cassert>
+#include <cfloat>
 
 #include "Vehicle.h"
 #include "Missile.h"
@@ -80,6 +81,47 @@ void Vehicle::update(float t)
 		// gravity
 		mVelocity += Common::Vector3(0.0f, -18.0f * t, 0.0f);
 	}
+
+	for(auto it = mProjectiles.begin(); it != mProjectiles.end(); ++it) {
+		auto vel = it->getVelocity();
+		auto pos1 = it->getPosition();
+		vel += Common::Vector3(0.0f, -18.0f * t, 0.0f);
+		it->setVelocity(vel);
+		it->update(t);
+		auto pos2 = it->getPosition();
+
+		/* brute force for now */
+		bool hit = false;
+		std::vector<Vehicle*> hit_vehicles;
+		for(auto p2 : mGame->getVehicles()) {
+			if(this != p2 && Common::Math::raySphereIntersect(pos1, pos2, p2->getPosition(),
+						p2->getRadius())) {
+				hit_vehicles.push_back(p2);
+				hit = true;
+			}
+		}
+
+		if(!hit_vehicles.empty()) {
+			float min_dist = FLT_MAX;
+			Vehicle* hit_vehicle = nullptr;
+			for(auto& v : hit_vehicles) {
+				float this_dist = pos1.distance(v->getPosition());
+				if(this_dist < min_dist) {
+					min_dist = this_dist;
+					hit_vehicle = v;
+				}
+			}
+			assert(hit_vehicle);
+			hit_vehicle->destroy();
+		}
+
+		if(pos2.y <= getHeightAt(pos2.x, pos2.z))
+			hit = true;
+
+		if(hit) {
+			mProjectiles.erase(it--);
+		}
+	}
 }
 
 void Vehicle::setTargetVelocity(PrincipalAxis a, float v)
@@ -111,6 +153,14 @@ void Vehicle::checkShooting()
 			auto mit = mMissiles.rbegin();
 			(*mit)->shoot(mTarget);
 			mMissiles.pop_back();
+		} else if(mShells > 0) {
+			mShells--;
+			auto dir = getRotation() * mTurretRotation;
+			auto p = PhysicalEntity(getPosition(),
+					dir,
+					0.2f);
+			p.setVelocity(Common::Math::rotate3D(Common::Vector3(0, 0, 1), dir) * 1000.0f);
+			mProjectiles.push_back(p);
 		}
 	}
 }
@@ -177,6 +227,11 @@ bool Vehicle::toggleBraking()
 {
 	mBraking = !mBraking;
 	return mBraking;
+}
+
+void Vehicle::setTurretRotation(const Common::Quaternion& q)
+{
+	mTurretRotation = q;
 }
 
 
