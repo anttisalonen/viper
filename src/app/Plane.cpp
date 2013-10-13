@@ -10,6 +10,11 @@ Plane::Plane(Game* g, int side, const Common::Vector3& pos, const Common::Quater
 	mBraking = true;
 }
 
+bool Plane::acceptsMissiles() const
+{
+	return mMissiles.size() < 2;
+}
+
 void Plane::addMissile(Missile* m)
 {
 	Common::Vector3 offset(-4.80f, -0.18f, -1.0f);
@@ -81,6 +86,11 @@ void Plane::update(float t)
 const char* Plane::getType() const
 {
 	return "f16";
+}
+
+VehicleType Plane::getVehicleType() const
+{
+	return VehicleType::Plane;
 }
 
 

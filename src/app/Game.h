@@ -10,6 +10,7 @@
 class UserInterface;
 class InputHandler;
 class Vehicle;
+enum class VehicleType;
 class Plane;
 class SAM;
 class Missile;
@@ -26,8 +27,7 @@ class Game {
 		void toggleInputHandler();
 
 	private:
-		Plane* addPlane(int side, const Common::Vector3& pos, const Common::Quaternion& q);
-		SAM* addSAM(int side, const Common::Vector3& pos, const Common::Quaternion& q);
+		Vehicle* addVehicle(VehicleType t, int side);
 
 		InputHandler* mInputHandler;
 		UserInterface* mUserInterface;
@@ -38,8 +38,10 @@ class Game {
 
 		Common::Clock mFPSTimer;
 
-		Common::Vector3 mBaseFlags[2];
+		Common::Vector3 mBase[2];
 		int mWinner = -1;
+		float mBaseWidth = 0.0f;
+		float mBaseLength = 0.0f;
 };
 
 #endif

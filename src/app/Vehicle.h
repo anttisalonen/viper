@@ -13,6 +13,12 @@ class VehicleController;
 class Missile;
 class Game;
 
+enum class VehicleType {
+	Plane,
+	SAM,
+	Tank,
+};
+
 class Vehicle : public VisibleEntity {
 	public:
 		Vehicle(Game* g, int side, const Common::Vector3& pos, const Common::Quaternion& q);
@@ -22,11 +28,13 @@ class Vehicle : public VisibleEntity {
 		void setController(VehicleController* p);
 		void shoot();
 		bool toggleBraking();
-		virtual void addMissile(Missile* m) = 0;
+		virtual bool acceptsMissiles() const;
+		virtual void addMissile(Missile* m);
 		void destroy();
 		bool isDestroyed() const;
 		int getSide() const;
 		bool grounded() const;
+		virtual VehicleType getVehicleType() const = 0;
 
 	protected:
 		Game* getGame();

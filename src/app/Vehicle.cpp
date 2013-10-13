@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdexcept>
+#include <cassert>
 
 #include "Vehicle.h"
 #include "Missile.h"
@@ -28,6 +29,17 @@ int Vehicle::getSide() const
 	return mSide;
 }
 
+bool Vehicle::acceptsMissiles() const
+{
+	return false;
+}
+
+void Vehicle::addMissile(Missile* m)
+{
+	assert(0);
+	throw std::runtime_error("This vehicle doesn't accept missiles!");
+}
+
 void Vehicle::update(float t)
 {
 	VisibleEntity::update(t);
@@ -50,7 +62,8 @@ void Vehicle::update(float t)
 
 	/* brute force O(n^2) collision detection between vehicles for now */
 	for(auto p2 : mGame->getVehicles()) {
-		if(this != p2 && this->collidesWith(*p2)) {
+		if(this != p2 && this->collidesWith(*p2) &&
+				(getVelocity().length() > 20.0f || p2->getVelocity().length() > 20.0f)) {
 			this->destroy();
 			p2->destroy();
 		}
