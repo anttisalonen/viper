@@ -68,6 +68,8 @@ void Plane::update(float t)
 		} else {
 			if(speed > 20.0f)
 				speed_mod = -2.0f;
+			else
+				speed_mod = 10.0f;
 		}
 	}
 	speed = Common::clamp(0.0f, speed + speed_mod * t, 40.0f);
