@@ -31,6 +31,7 @@ class Game {
 		Vehicle* addVehicle(VehicleType t, int side);
 		bool assignController(VehicleController* c, Vehicle* v);
 		bool tryAssignController(VehicleController* c);
+		bool tryAssignVehicle(Vehicle* v);
 
 		InputHandler* mInputHandler;
 		std::vector<VehicleController*> mAIControllers;

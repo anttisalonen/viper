@@ -1,6 +1,7 @@
 #include "UserInterface.h"
 
 #include "TextRenderer.h"
+#include "MouseCursor.h"
 #include "InputHandler.h"
 #include "Game.h"
 #include "Entity.h"
@@ -71,6 +72,11 @@ UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
 
 		new TextRenderer();
 		TextRenderer::getSingleton().addTextBox("position", "Position: ", 10, 10, 100, 20, Ogre::ColourValue::White);
+
+		mMouseCursor = new MouseCursor();
+		mMouseCursor->setImage("cursor.png");
+		mMouseCursor->setVisible(false);
+		mMouseCursor->setWindowDimensions(mWindowWidth, mWindowHeight);
 	}
 }
 
@@ -124,6 +130,7 @@ bool UserInterface::checkWindowResize()
 		mMouse->getMouseState().width = mWindowWidth;
 		mMouse->getMouseState().height = mWindowHeight;
 		mCamera->setAspectRatio(float(mViewport->getActualWidth()) / float(mViewport->getActualHeight()));
+		mMouseCursor->setWindowDimensions(mWindowWidth, mWindowHeight);
 		return true;
 	}
 	return false;
@@ -260,6 +267,7 @@ void UserInterface::renderOneFrame()
 		Ogre::WindowEventUtilities::messagePump();
 		mKeyboard->capture();
 		mMouse->capture();
+		mMouseCursor->updatePosition(mMouse->getMouseState().X.abs, mMouse->getMouseState().Y.abs);
 	}
 }
 
@@ -454,6 +462,11 @@ void UserInterface::setupDebug()
 	debugMaterial->getTechnique(0)->getPass(0)->setAmbient(0,0,1); 
 	debugMaterial->getTechnique(0)->getPass(0)->setSelfIllumination(0,0,1); 
 
+}
+
+void UserInterface::setMouseVisible(bool b)
+{
+	mMouseCursor->setVisible(b);
 }
 
 

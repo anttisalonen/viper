@@ -12,11 +12,13 @@
 #include "Constants.h"
 
 class InputHandler;
+class GeneralInput;
 class Game;
 class VisibleEntity;
 class Missile;
 class Vehicle;
 class Terrain;
+class MouseCursor;
 
 class UserInterface {
 	public:
@@ -34,6 +36,7 @@ class UserInterface {
 				const Common::Quaternion& rot);
 		void setCamera(const Common::Vector3& position,
 				const Common::Quaternion& rot);
+		void setMouseVisible(bool b);
 
 	private:
 		void initResources();
@@ -74,6 +77,8 @@ class UserInterface {
 
 		Constants mConstants;
 		const Terrain* mTerrain;
+
+		MouseCursor* mMouseCursor = nullptr;
 };
 
 #endif

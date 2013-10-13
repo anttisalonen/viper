@@ -113,6 +113,20 @@ bool Game::tryAssignController(VehicleController* c)
 	return false;
 }
 
+/* return true if an AI controller could be assigned to the vehicle */
+bool Game::tryAssignVehicle(Vehicle* v)
+{
+	assert(v->getController() == nullptr);
+	for(auto c : mAIControllers) {
+		if(v->getSide() == c->getSide() && c->getVehicle() == nullptr) {
+			bool ret = assignController(c, v);
+			assert(ret == false);
+			return true;
+		}
+	}
+	return false;
+}
+
 void Game::go()
 {
 	double prevTime = Common::Clock::getTime();
@@ -203,12 +217,18 @@ bool Game::update(float frameTime)
 
 	if(mInputHandler->checkGeneralToggle()) {
 		if(mTrackingVehicle) {
+			mInputHandler->setVehicle(nullptr);
 			mTrackingVehicle->setController(nullptr);
+			tryAssignVehicle(mTrackingVehicle);
 			mTrackingVehicle = nullptr;
+		} else {
+			tryAssignController(mInputHandler);
+			mTrackingVehicle = mInputHandler->getVehicle();
 		}
 	}
 
 	if(mInputHandler->checkVehicleChangeRequest()) {
+		mUserInterface->setMouseVisible(false);
 		auto it = mVehicles.begin();
 		if(mInputHandler->getVehicle()) {
 			for(; it != mVehicles.end(); ++it) {
@@ -255,6 +275,9 @@ bool Game::update(float frameTime)
 				break;
 		}
 		mTrackingVehicle->setTurretRotation(mInputHandler->getViewRotation());
+	} else {
+		mUserInterface->setCamera(Common::Vector3(0, 3000, 0), Common::Quaternion(sqrt(0.5f), 0, 0, sqrt(0.5f)));
+		mUserInterface->setMouseVisible(true);
 	}
 
 	return mInputHandler->running();
