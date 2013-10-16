@@ -3,6 +3,7 @@
 #include "TextRenderer.h"
 #include "MouseCursor.h"
 #include "InputHandler.h"
+#include "GeneralInput.h"
 #include "Game.h"
 #include "Entity.h"
 #include "Missile.h"
@@ -17,7 +18,20 @@ UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
 	: mConstants("share/graphics/config/constants.json"),
 	mTerrain(t)
 {
-	mRoot = new Ogre::Root("", "", "");
+        // get user data directory
+        char* homedir = getenv("HOME");
+        if(homedir) {
+		std::string userdatadir = std::string(homedir) + "/.viper/";
+                struct stat st;
+                if(stat(userdatadir.c_str(), &st) != 0) {
+                        mkdir(userdatadir.c_str(), 0755);
+                }
+                // suppress ogre output to stderr
+                Ogre::LogManager* logMgr = new Ogre::LogManager();
+		logMgr->createLog(userdatadir + "Ogre.log", true, false, false);
+	}
+
+	mRoot = new Ogre::Root("", "", "ogre.log");
 	const char* ogrePluginDir = getenv("OGRE_PLUGIN_DIR");
 	if(!ogrePluginDir)
 		ogrePluginDir = OGRE_PLUGIN_DIR;
@@ -37,8 +51,8 @@ UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
 		mRoot->setRenderSystem(rsys[0]);
 		mRoot->initialise(false, "", "");
 		Ogre::NameValuePairList params;
-		params["FSAA"] = "4";
-		params["vsync"] = "false";
+		params["FSAA"] = "0";
+		params["vsync"] = "true";
 		params["border"] = "fixed";
 		mWindowWidth = 1280;
 		mWindowHeight = 720;
@@ -47,9 +61,11 @@ UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
 			delete mRoot;
 			throw std::runtime_error("Could not create the render window.\n");
 		}
-		mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
-		if(mConstants.getBool("shadows"))
-			mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
+		//mWindow->setFullscreen(true, 1360, 768);
+		mSceneMgr = mRoot->createSceneManager(Ogre::ST_EXTERIOR_FAR, "SceneManager");
+		if(mConstants.getBool("shadows")) {
+			mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE);
+		}
 		mRootNode = mSceneMgr->getRootSceneNode();
 		mCamera = mSceneMgr->createCamera("Camera");
 		mViewport = mWindow->addViewport(mCamera);
@@ -139,13 +155,14 @@ bool UserInterface::checkWindowResize()
 void UserInterface::setupScene()
 {
 	// Set ambient light
-	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
+	auto sunColour = mConstants.getVector3("sun_light_colour");
+	mSceneMgr->setAmbientLight(Ogre::ColourValue(sunColour.x * 0.5f, sunColour.y * 0.5f, sunColour.z * 0.5f));
 	mSceneMgr->setSkyBox(true, "SkyBox", 1000);
 
 	Ogre::Light* sun = mSceneMgr->createLight("sun");
 	sun->setType(Ogre::Light::LT_DIRECTIONAL);
-	sun->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
-	sun->setSpecularColour(Ogre::ColourValue(1, 1, 1));
+	sun->setDiffuseColour(Ogre::ColourValue(sunColour.x, sunColour.y, sunColour.z));
+	sun->setSpecularColour(Ogre::ColourValue(sunColour.x, sunColour.y, sunColour.z));
 	auto sunLightDirection = mConstants.getVector3("directional_light");
 	sun->setDirection(sunLightDirection.x, sunLightDirection.y, sunLightDirection.z);
 
@@ -188,6 +205,7 @@ void UserInterface::setupTerrain()
 			sprintf(terrainName, "Terrain %d", terrainNum);
 			Ogre::ManualObject* obj = mSceneMgr->createManualObject(terrainName);
 			obj->setDynamic(false);
+			obj->setCastShadows(false);
 			obj->begin("Terrain", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
 			unsigned int ii = 0;
@@ -285,9 +303,12 @@ void UserInterface::updateEntity(const VisibleEntity* p)
 		snprintf(entityname, 255, "Entity %4d", ++mNumEntities);
 		snprintf(meshname, 255, "%s.mesh", p->getType());
 		e = mSceneMgr->createEntity(entityname, meshname);
+		e->setCastShadows(true);
 
 		n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		n->attachObject(e);
+
+#if 0
 		{
 			char debugname[256];
 			snprintf(debugname, 255, "Debug %4d", mNumEntities);
@@ -302,6 +323,7 @@ void UserInterface::updateEntity(const VisibleEntity* p)
 			debugObject->end();
 			n->attachObject(debugObject);
 		}
+#endif
 
 		mEntities.insert({p, e});
 	} else {
@@ -411,6 +433,15 @@ void UserInterface::removeMissile(const Missile* m)
 	removeEntity(m);
 }
 
+void UserInterface::setCamera(const Common::Vector3& position,
+		const Common::Vector3& lookat)
+{
+	mCamera->setPosition(Ogre::Vector3(position.x, position.y, position.z));
+	mCamera->lookAt(Ogre::Vector3(lookat.x, lookat.y, lookat.z));
+	constrainCamera();
+	updateTextLabels();
+}
+
 void UserInterface::setCamera(const Common::Vector3& offset,
 		const Common::Vector3& lookat,
 		const Common::Quaternion& rot)
@@ -425,13 +456,6 @@ void UserInterface::setCamera(const Common::Vector3& offset,
 	updateTextLabels();
 }
 
-void UserInterface::updateTextLabels()
-{
-	const Ogre::Vector3& pos = mCamera->getPosition();
-	TextRenderer::getSingleton().printf("position", "Position: %3.2f %3.2f %3.2f",
-			pos.x, pos.y, pos.z);
-}
-
 void UserInterface::setCamera(const Common::Vector3& position,
 		const Common::Quaternion& rot)
 {
@@ -442,6 +466,13 @@ void UserInterface::setCamera(const Common::Vector3& position,
 	mCamera->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(180));
 	constrainCamera();
 	updateTextLabels();
+}
+
+void UserInterface::updateTextLabels()
+{
+	const Ogre::Vector3& pos = mCamera->getPosition();
+	TextRenderer::getSingleton().printf("position", "Position: %3.2f %3.2f %3.2f",
+			pos.x, pos.y, pos.z);
 }
 
 void UserInterface::constrainCamera()

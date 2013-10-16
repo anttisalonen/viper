@@ -1,5 +1,7 @@
 #include "Game.h"
 #include "InputHandler.h"
+#include "UserInput.h"
+#include "GeneralInput.h"
 #include "UserInterface.h"
 
 #include "Terrain.h"
@@ -13,7 +15,9 @@
 #include "common/Math.h"
 
 Game::Game()
-	: mInputHandler(new InputHandler())
+	: mUserInput(new UserInput()),
+	mGeneralInput(new GeneralInput()),
+	mInputHandler(new InputHandler(mUserInput, mGeneralInput))
 {
 	using Common::Vector3;
 	Constants terrainConstants("share/terrain/constants.json");
@@ -21,6 +25,7 @@ Game::Game()
 	float offset = terrainConstants.getFloat("height_offset");
 	unsigned int dim = terrainConstants.getUInt("dimension");
 	mTerrain = new Terrain(scale, offset, dim);
+
 
 	mBase[0] = Vector3(dim * 0.5 - 100, 0, dim * 0.5 - 100); mBase[0].y = mTerrain->getHeightAt(mBase[0].x, mBase[0].z);
 	mBase[1] = Vector3(100 - dim * 0.5, 0, 100 - dim * 0.5); mBase[1].y = mTerrain->getHeightAt(mBase[1].x, mBase[1].z);
@@ -41,6 +46,10 @@ Game::Game()
 
 	mTerrain->addHeightModifier(base0_min.x, base0_min.z, base0_max.x, base0_max.z, base0_height);
 	mTerrain->addHeightModifier(base1_min.x, base1_min.z, base1_max.x, base1_max.z, base1_height);
+
+	auto gen_campos = mBase[0];
+	gen_campos.y = 500.0f;
+	mGeneralInput->setCameraPosition(gen_campos);
 
 	mUserInterface = new UserInterface(mInputHandler, mTerrain);
 
@@ -77,6 +86,10 @@ Game::~Game()
 
 	delete mInputHandler;
 	mInputHandler = nullptr;
+	delete mGeneralInput;
+	mGeneralInput = nullptr;
+	delete mUserInput;
+	mUserInput = nullptr;
 	delete mUserInterface;
 	mUserInterface = nullptr;
 	delete mTerrain;
@@ -215,6 +228,12 @@ bool Game::update(float frameTime)
 		}
 	}
 
+	if(mGeneralInput->checkGeneralToggle()) {
+		mInputHandler->setGeneralMode(false);
+		tryAssignController(mInputHandler);
+		mTrackingVehicle = mInputHandler->getVehicle();
+	}
+
 	if(mInputHandler->checkGeneralToggle()) {
 		if(mTrackingVehicle) {
 			mInputHandler->setVehicle(nullptr);
@@ -276,11 +295,17 @@ bool Game::update(float frameTime)
 		}
 		mTrackingVehicle->setTurretRotation(mInputHandler->getViewRotation());
 	} else {
-		mUserInterface->setCamera(Common::Vector3(0, 3000, 0), Common::Quaternion(sqrt(0.5f), 0, 0, sqrt(0.5f)));
+		// general input
+		mGeneralInput->update(frameTime);
+		auto campos = mGeneralInput->getCameraPosition();
+		Common::Vector3 offset = Common::Vector3(0, campos.y, 0);
+		campos.y = 0.0f;
+		mUserInterface->setCamera(offset, campos,
+				mGeneralInput->getCameraRotation());
 		mUserInterface->setMouseVisible(true);
 	}
 
-	return mInputHandler->running();
+	return mUserInput->running();
 }
 
 std::list<Vehicle*>& Game::getVehicles()

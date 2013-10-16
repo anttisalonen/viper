@@ -9,6 +9,8 @@
 
 class UserInterface;
 class InputHandler;
+class UserInput;
+class GeneralInput;
 class Vehicle;
 enum class VehicleType;
 class Plane;
@@ -33,6 +35,8 @@ class Game {
 		bool tryAssignController(VehicleController* c);
 		bool tryAssignVehicle(Vehicle* v);
 
+		UserInput* mUserInput;
+		GeneralInput* mGeneralInput;
 		InputHandler* mInputHandler;
 		std::vector<VehicleController*> mAIControllers;
 		UserInterface* mUserInterface;

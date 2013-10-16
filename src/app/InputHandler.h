@@ -6,6 +6,8 @@
 #include "common/Quaternion.h"
 
 #include "VehicleController.h"
+#include "UserInput.h"
+#include "GeneralInput.h"
 
 enum class ViewSetting {
 	Offset,
@@ -14,9 +16,8 @@ enum class ViewSetting {
 
 class InputHandler : public VehicleController, public OIS::KeyListener, public OIS::MouseListener {
 	public:
-		InputHandler();
+		InputHandler(UserInput* i, GeneralInput* gi);
 		virtual void update(float time) override;
-		bool running() const;
 		bool keyPressed(const OIS::KeyEvent &arg);
 		bool keyReleased(const OIS::KeyEvent &arg);
 		bool mouseMoved(const OIS::MouseEvent& arg);
@@ -26,6 +27,7 @@ class InputHandler : public VehicleController, public OIS::KeyListener, public O
 		const Common::Quaternion& getViewRotation() const;
 		bool checkVehicleChangeRequest();
 		bool checkGeneralToggle();
+		void setGeneralMode(bool m);
 		int getSide() const override;
 
 	private:
@@ -39,13 +41,16 @@ class InputHandler : public VehicleController, public OIS::KeyListener, public O
 		float mRoll = 0.0f;
 		float mYaw = 0.0f;
 		float mAcceleration = 0.0f;
-		bool mRunning = true;
 		bool mShooting = false;
 		ViewSetting mViewSetting = ViewSetting::Cockpit;
 		Common::Quaternion mViewRotation;
 
 		bool mRequestingVehicleChange = false;
 		bool mToggleGeneral = false;
+
+		UserInput* mUserInput = nullptr;
+		GeneralInput* mGeneralInput = nullptr;
+		bool mGeneralMode = false;
 };
 
 #endif

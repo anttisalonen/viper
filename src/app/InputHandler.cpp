@@ -3,17 +3,19 @@
 
 #include <string.h>
 
-InputHandler::InputHandler()
+InputHandler::InputHandler(UserInput* i, GeneralInput* gi)
+	: mUserInput(i),
+	mGeneralInput(gi)
 {
-}
-
-bool InputHandler::running() const
-{
-	return mRunning;
 }
 
 void InputHandler::update(float time)
 {
+	if(mGeneralMode) {
+		mGeneralInput->update(time);
+		return;
+	}
+
 	mPitch = Common::clamp(-1.0f, mPitch * 1.1f, 1.0f);
 	mYaw   = Common::clamp(-1.0f, mYaw   * 1.1f, 1.0f);
 	mRoll  = Common::clamp(-1.0f, mRoll  * 1.1f, 1.0f);
@@ -54,10 +56,16 @@ bool InputHandler::checkGeneralToggle()
 {
 	if(mToggleGeneral) {
 		mToggleGeneral = false;
+		mGeneralMode = !mGeneralMode;
 		return true;
 	} else {
 		return false;
 	}
+}
+
+void InputHandler::setGeneralMode(bool m)
+{
+	mGeneralMode = m;
 }
 
 bool InputHandler::checkVehicleChangeRequest()
@@ -165,11 +173,13 @@ void InputHandler::handleLandVehicleControl(const OIS::KeyEvent& arg, bool press
 
 bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
 {
-	switch(arg.key) {
-		case OIS::KC_ESCAPE:
-			mRunning = false;
-			break;
+	if(!mUserInput->keyPressed(arg))
+		return false;
 
+	if(mGeneralMode)
+		return mGeneralInput->keyPressed(arg);
+
+	switch(arg.key) {
 		case OIS::KC_UP:
 		case OIS::KC_W:
 		case OIS::KC_DOWN:
@@ -230,6 +240,12 @@ bool InputHandler::keyPressed(const OIS::KeyEvent &arg)
 
 bool InputHandler::keyReleased(const OIS::KeyEvent &arg)
 {
+	if(!mUserInput->keyReleased(arg))
+		return false;
+
+	if(mGeneralMode)
+		return mGeneralInput->keyReleased(arg);
+
 	switch(arg.key) {
 		case OIS::KC_UP:
 		case OIS::KC_W:
@@ -253,6 +269,12 @@ bool InputHandler::keyReleased(const OIS::KeyEvent &arg)
 
 bool InputHandler::mouseMoved(const OIS::MouseEvent& arg)
 {
+	if(!mUserInput->mouseMoved(arg))
+		return false;
+
+	if(mGeneralMode)
+		return mGeneralInput->mouseMoved(arg);
+
 	auto q1 = Common::Quaternion::fromAxisAngle(Common::Vector3(1, 0, 0), arg.state.Y.rel * 0.01f);
 	auto q2 = Common::Quaternion::fromAxisAngle(Common::Vector3(0, 1, 0), -arg.state.X.rel * 0.01f);
 	mViewRotation = q2 * mViewRotation * q1;
@@ -262,6 +284,12 @@ bool InputHandler::mouseMoved(const OIS::MouseEvent& arg)
 
 bool InputHandler::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID button)
 {
+	if(!mUserInput->mousePressed(arg, button))
+		return false;
+
+	if(mGeneralMode)
+		return mGeneralInput->mousePressed(arg, button);
+
 	if(button == OIS::MB_Left) {
 		mShooting = true;
 	}
@@ -271,6 +299,12 @@ bool InputHandler::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID b
 
 bool InputHandler::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID button)
 {
+	if(!mUserInput->mouseReleased(arg, button))
+		return false;
+
+	if(mGeneralMode)
+		return mGeneralInput->mouseReleased(arg, button);
+
 	return true;
 }
 

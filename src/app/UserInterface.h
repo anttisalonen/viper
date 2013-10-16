@@ -12,7 +12,6 @@
 #include "Constants.h"
 
 class InputHandler;
-class GeneralInput;
 class Game;
 class VisibleEntity;
 class Missile;
@@ -31,6 +30,8 @@ class UserInterface {
 		void updateVehicle(const Vehicle* p);
 		void updateMissile(const Missile* m);
 		void removeMissile(const Missile* m);
+		void setCamera(const Common::Vector3& position,
+				const Common::Vector3& lookat);
 		void setCamera(const Common::Vector3& offset,
 				const Common::Vector3& lookat,
 				const Common::Quaternion& rot);
@@ -79,6 +80,7 @@ class UserInterface {
 		const Terrain* mTerrain;
 
 		MouseCursor* mMouseCursor = nullptr;
+		InputHandler* mInputHandler = nullptr;
 };
 
 #endif

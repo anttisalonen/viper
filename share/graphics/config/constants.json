@@ -1,6 +1,7 @@
 {
 	"directional_light" : [0, -1, 0],
+	"sun_light_colour" : [1.0, 1.0, 1.0],
 	"terrain_texture_scale" : 0.001,
 	"terrain_quads_per_plate" : 16,
-	"shadows" : false
+	"shadows" : true
 }
