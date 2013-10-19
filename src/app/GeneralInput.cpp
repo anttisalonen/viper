@@ -1,6 +1,7 @@
 #include "common/Math.h"
 
 #include "GeneralInput.h"
+#include "General.h"
 
 GeneralInput::GeneralInput()
 {
@@ -12,6 +13,11 @@ GeneralInput::GeneralInput()
 	mCamRot = q2 * mCamRot * q1;
 }
 
+void GeneralInput::setGeneral(General* g)
+{
+	mGeneral = g;
+}
+
 void GeneralInput::update(float time)
 {
 	if(time) {
@@ -21,6 +27,9 @@ void GeneralInput::update(float time)
 		auto q1 = Common::Quaternion::fromAxisAngle(Common::Vector3(1, 0, 0), mRotY * time);
 		auto q2 = Common::Quaternion::fromAxisAngle(Common::Vector3(0, 1, 0), mRotX * time);
 		mCamRot = q2 * mCamRot * q1;
+
+		if(mGeneral)
+			mGeneral->update(time);
 	}
 }
 
@@ -132,6 +141,12 @@ bool GeneralInput::mouseMoved(const OIS::MouseEvent& arg)
 
 bool GeneralInput::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID button)
 {
+	if(button == OIS::MB_Left) {
+		mMouseX = arg.state.X.abs / float(arg.state.width);
+		mMouseY = arg.state.Y.abs / float(arg.state.height);
+		mMouseClicked = true;
+	}
+
 	return true;
 }
 
@@ -163,6 +178,15 @@ bool GeneralInput::checkGeneralToggle()
 void GeneralInput::setCameraPosition(const Common::Vector3& pos)
 {
 	mCamPos = pos;
+}
+
+bool GeneralInput::mouseClicked(float& x, float& y)
+{
+	x = mMouseX;
+	y = mMouseY;
+	auto m = mMouseClicked;
+	mMouseClicked = false;
+	return m;
 }
 
 

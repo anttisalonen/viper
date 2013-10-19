@@ -18,6 +18,7 @@ class SAM;
 class Missile;
 class Terrain;
 class VehicleController;
+class General;
 
 class Game {
 	public:
@@ -34,6 +35,7 @@ class Game {
 		bool assignController(VehicleController* c, Vehicle* v);
 		bool tryAssignController(VehicleController* c);
 		bool tryAssignVehicle(Vehicle* v);
+		Vehicle* selectVehicleAt(float x, float y, int side);
 
 		UserInput* mUserInput;
 		GeneralInput* mGeneralInput;
@@ -48,6 +50,7 @@ class Game {
 		Common::Clock mFPSTimer;
 
 		Common::Vector3 mBase[2];
+		General* mGenerals[2];
 		int mWinner = -1;
 		float mBaseWidth = 0.0f;
 		float mBaseLength = 0.0f;

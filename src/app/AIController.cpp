@@ -14,7 +14,7 @@ int AIController::getSide() const
 void AIController::update(float t)
 {
 	if(mVehicle) {
-		mVehicle->setTargetVelocity(100.0f);
+		//mVehicle->setTargetVelocity(100.0f);
 	}
 }
 

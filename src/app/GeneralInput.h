@@ -6,9 +6,12 @@
 #include "common/Vector3.h"
 #include "common/Quaternion.h"
 
+class General;
+
 class GeneralInput {
 	public:
 		GeneralInput();
+		void setGeneral(General* g);
 		void update(float time);
 		bool keyPressed(const OIS::KeyEvent &arg);
 		bool keyReleased(const OIS::KeyEvent &arg);
@@ -21,8 +24,10 @@ class GeneralInput {
 		const Common::Quaternion& getCameraRotation() const;
 
 		bool checkGeneralToggle();
+		bool mouseClicked(float& x, float& y);
 
 	private:
+		General* mGeneral = nullptr;
 		Common::Quaternion mCamRot;
 		Common::Vector3 mCamPos;
 		Common::Vector3 mCamVelocity;
@@ -31,6 +36,9 @@ class GeneralInput {
 		float mRotY = 0.0f;
 
 		bool mGeneralToggle = false;
+		bool mMouseClicked = false;
+		float mMouseX = 0.0f;
+		float mMouseY = 0.0f;
 };
 
 

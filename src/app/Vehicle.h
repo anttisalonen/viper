@@ -2,6 +2,7 @@
 #define APP_VEHICLE_H
 
 #include <vector>
+#include <list>
 
 #include "common/Vector3.h"
 #include "common/Quaternion.h"
@@ -37,6 +38,12 @@ class Vehicle : public VisibleEntity {
 		bool grounded() const;
 		virtual VehicleType getVehicleType() const = 0;
 		void setTurretRotation(const Common::Quaternion& q);
+
+		// nearest vehicle hit by ray
+		static Vehicle* pickVehicle(const std::list<Vehicle*>& vehicles,
+				const Vehicle* exclude,
+				const Common::Vector3& from,
+				const Common::Vector3& to, float tolerance);
 
 	protected:
 		Game* getGame();

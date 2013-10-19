@@ -289,77 +289,39 @@ void UserInterface::renderOneFrame()
 	}
 }
 
-void UserInterface::updateEntity(const VisibleEntity* p)
+Ogre::Entity* UserInterface::ogreEntityFromVisibleEntity(const VisibleEntity* v)
 {
-	const Common::Vector3& v = p->getPosition();
-	const Common::Quaternion& q = p->getRotation();
-	Ogre::Entity* e;
+	Ogre::Entity* e = nullptr;
 	Ogre::SceneNode* n;
-	auto it = mEntities.find(p);
+	auto it = mEntities.find(v);
 
 	if(it == mEntities.end()) {
 		char entityname[256];
 		char meshname[256];
 		snprintf(entityname, 255, "Entity %4d", ++mNumEntities);
-		snprintf(meshname, 255, "%s.mesh", p->getType());
+		snprintf(meshname, 255, "%s.mesh", v->getType());
 		e = mSceneMgr->createEntity(entityname, meshname);
 		e->setCastShadows(true);
 
 		n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		n->attachObject(e);
 
-#if 0
-		{
-			char debugname[256];
-			snprintf(debugname, 255, "Debug %4d", mNumEntities);
-			Ogre::ManualObject* debugObject = mSceneMgr->createManualObject(debugname);
-			debugObject->begin("debugMaterial", Ogre::RenderOperation::OT_LINE_LIST);
-			debugObject->position(0, 0, 0);
-			debugObject->position(0, 10, 0);
-			debugObject->position(0, 0, 0);
-			debugObject->position(10, 0, 0);
-			debugObject->position(0, 0, 0);
-			debugObject->position(0, 0, 10);
-			debugObject->end();
-			n->attachObject(debugObject);
-		}
-#endif
-
-		mEntities.insert({p, e});
+		mEntities.insert({v, e});
 	} else {
 		e = it->second;
 		n = e->getParentSceneNode();
 	}
 
-	if(!strcmp(p->getType(), "sa8")) {
-		static Ogre::SceneNode* normalnode;
-		if(!mSceneMgr->hasManualObject("normal_line")) {
-			Ogre::ManualObject* normal = mSceneMgr->createManualObject("normal_line");
-			normal->begin("debugMaterial", Ogre::RenderOperation::OT_LINE_LIST);
-			normal->position(0, 0, 0);
-			normal->position(0, 10, 0);
-			normal->end();
-			normalnode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-			normalnode->attachObject(normal);
-		}
+	assert(e);
+	return e;
+}
 
-		float h1 = getTerrainHeightAt(v.x, v.z);
-		float h2 = getTerrainHeightAt(v.x, v.z + 1.0f);
-		float h3 = getTerrainHeightAt(v.x + 1.0f, v.z);
-		Common::Vector3 p1(v.x, h1, v.z);
-		Common::Vector3 p2(v.x, h2, v.z + 1.0f);
-		Common::Vector3 p3(v.x + 1.0f, h3, v.z);
-		Common::Vector3 norm = (p2 - p1).cross(p3 - p1).normalized();
-		//auto ori = Common::Quaternion::fromAxisAngle(norm, PI);
-
-		normalnode->setPosition(v.x, v.y + 3.0f, v.z);
-		//normalnode->setOrientation(1, 0, 0, 1);
-		//std::cout << p1 << "\t" << p2 << "\t" << p3 << "\n";
-		auto ori = Common::Quaternion::getRotationTo(Common::Vector3(0, 1, 0), norm);
-		//std::cout << norm << "\t" << ori << "\n";
-		normalnode->setOrientation(ori.w, ori.x, ori.y, ori.z);
-	}
-
+void UserInterface::updateEntity(const VisibleEntity* p)
+{
+	const Common::Vector3& v = p->getPosition();
+	const Common::Quaternion& q = p->getRotation();
+	Ogre::Entity* e = ogreEntityFromVisibleEntity(p);
+	Ogre::SceneNode* n = e->getParentSceneNode();
 	n->setOrientation(q.w, q.x, q.y, q.z);
 	n->setPosition(v.x, v.y, v.z);
 }
@@ -498,6 +460,26 @@ void UserInterface::setupDebug()
 void UserInterface::setMouseVisible(bool b)
 {
 	mMouseCursor->setVisible(b);
+}
+
+void UserInterface::raycast(float x, float y, Common::Vector3& origin, Common::Vector3& dir) const
+{
+	Ogre::Ray mouseRay = mCamera->getCameraToViewportRay(x, y);
+	auto ori = mouseRay.getOrigin();
+	auto di = mouseRay.getDirection();
+	origin.x = ori.x;
+	origin.y = ori.y;
+	origin.z = ori.z;
+	dir.x = di.x;
+	dir.y = di.y;
+	dir.z = di.z;
+}
+
+void UserInterface::setEntityHighlight(const VisibleEntity* e, bool h)
+{
+	auto oe = ogreEntityFromVisibleEntity(e);
+	Ogre::SceneNode* n = oe->getParentSceneNode();
+	n->showBoundingBox(h);
 }
 
 

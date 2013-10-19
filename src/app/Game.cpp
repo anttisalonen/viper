@@ -9,6 +9,7 @@
 #include "Missile.h"
 #include "SAM.h"
 #include "Tank.h"
+#include "General.h"
 
 #include "AIController.h"
 
@@ -26,6 +27,10 @@ Game::Game()
 	unsigned int dim = terrainConstants.getUInt("dimension");
 	mTerrain = new Terrain(scale, offset, dim);
 
+	mGenerals[0] = new General(this);
+	mGenerals[1] = new General(this);
+
+	mGeneralInput->setGeneral(mGenerals[0]);
 
 	mBase[0] = Vector3(dim * 0.5 - 100, 0, dim * 0.5 - 100); mBase[0].y = mTerrain->getHeightAt(mBase[0].x, mBase[0].z);
 	mBase[1] = Vector3(100 - dim * 0.5, 0, 100 - dim * 0.5); mBase[1].y = mTerrain->getHeightAt(mBase[1].x, mBase[1].z);
@@ -303,6 +308,18 @@ bool Game::update(float frameTime)
 		mUserInterface->setCamera(offset, campos,
 				mGeneralInput->getCameraRotation());
 		mUserInterface->setMouseVisible(true);
+		float x, y;
+		if(mGeneralInput->mouseClicked(x, y)) {
+			auto oldv = mGenerals[0]->getSelectedVehicle();
+			if(oldv) {
+				mUserInterface->setEntityHighlight(oldv, false);
+			}
+			auto v = selectVehicleAt(x, y, 0);
+			mGenerals[0]->setSelectedVehicle(v);
+			if(v) {
+				mUserInterface->setEntityHighlight(v, true);
+			}
+		}
 	}
 
 	return mUserInput->running();
@@ -316,5 +333,15 @@ std::list<Vehicle*>& Game::getVehicles()
 const Terrain* Game::getTerrain() const
 {
 	return mTerrain;
+}
+
+Vehicle* Game::selectVehicleAt(float x, float y, int side)
+{
+	Common::Vector3 origin, dir;
+	mUserInterface->raycast(x, y, origin, dir);
+	auto v = Vehicle::pickVehicle(mVehicles, nullptr, origin, origin + dir * 100.0f, 5.0f);
+	if(v && v->getSide() == side)
+		return v;
+	return nullptr;
 }
 

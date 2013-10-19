@@ -90,28 +90,9 @@ void Vehicle::update(float t)
 		it->update(t);
 		auto pos2 = it->getPosition();
 
-		/* brute force for now */
-		bool hit = false;
-		std::vector<Vehicle*> hit_vehicles;
-		for(auto p2 : mGame->getVehicles()) {
-			if(this != p2 && Common::Math::raySphereIntersect(pos1, pos2, p2->getPosition(),
-						p2->getRadius())) {
-				hit_vehicles.push_back(p2);
-				hit = true;
-			}
-		}
-
-		if(!hit_vehicles.empty()) {
-			float min_dist = FLT_MAX;
-			Vehicle* hit_vehicle = nullptr;
-			for(auto& v : hit_vehicles) {
-				float this_dist = pos1.distance(v->getPosition());
-				if(this_dist < min_dist) {
-					min_dist = this_dist;
-					hit_vehicle = v;
-				}
-			}
-			assert(hit_vehicle);
+		auto hit_vehicle = pickVehicle(mGame->getVehicles(), this, pos1, pos2, 0.0f);
+		bool hit = hit_vehicle != nullptr;
+		if(hit_vehicle) {
 			hit_vehicle->destroy();
 		}
 
@@ -239,6 +220,30 @@ bool Vehicle::toggleBraking()
 void Vehicle::setTurretRotation(const Common::Quaternion& q)
 {
 	mTurretRotation = q;
+}
+
+Vehicle* Vehicle::pickVehicle(const std::list<Vehicle*>& vehicles,
+		const Vehicle* exclude,
+		const Common::Vector3& from,
+		const Common::Vector3& to,
+		float tolerance)
+{
+	/* brute force for now */
+	Vehicle* hit_vehicle = nullptr;
+	float min_dist = FLT_MAX;
+	for(auto p2 : vehicles) {
+		if(exclude && p2 == exclude)
+			continue;
+		if(Common::Math::raySphereIntersect(from, to, p2->getPosition(),
+					p2->getRadius() + tolerance)) {
+			float this_dist = from.distance(p2->getPosition());
+			if(this_dist < min_dist) {
+				min_dist = this_dist;
+				hit_vehicle = p2;
+			}
+		}
+	}
+	return hit_vehicle;
 }
 
 

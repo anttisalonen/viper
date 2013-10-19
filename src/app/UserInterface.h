@@ -38,6 +38,8 @@ class UserInterface {
 		void setCamera(const Common::Vector3& position,
 				const Common::Quaternion& rot);
 		void setMouseVisible(bool b);
+		void raycast(float x, float y, Common::Vector3& origin, Common::Vector3& dir) const;
+		void setEntityHighlight(const VisibleEntity* e, bool h);
 
 	private:
 		void initResources();
@@ -51,6 +53,8 @@ class UserInterface {
 		void constrainCamera();
 		void setupDebug();
 		void updateTextLabels();
+
+		Ogre::Entity* ogreEntityFromVisibleEntity(const VisibleEntity* v);
 
 		Ogre::Root* mRoot = nullptr;
 		Ogre::RenderWindow* mWindow = nullptr;
