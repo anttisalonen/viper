@@ -18,6 +18,16 @@ Terrain::Terrain(float scale, float offset, float dimension)
 	unsigned int heightCacheSize = mCacheWidth * mCacheWidth;
 	mHeightCache = std::vector<float>(heightCacheSize, 0.0f);
 	std::cout << "Terrain: allocating " << heightCacheSize * sizeof(float) << " bytes for cache.\n";
+
+	mBaseFlatTerrain.SetFrequency(2.0);
+	mFlatTerrain.SetSourceModule(0, mBaseFlatTerrain);
+	mFlatTerrain.SetScale(0.125);
+	mFlatTerrain.SetBias(0.0);
+	mFinalTerrain.SetSourceModule(0, mFlatTerrain);
+	mFinalTerrain.SetSourceModule(1, mMountainTerrain);
+	mFinalTerrain.SetControlModule(mTerrainType);
+	mFinalTerrain.SetBounds(-1000.0, 0.0);
+	mFinalTerrain.SetEdgeFalloff(0.125);
 }
 
 // The user input for x, y is expected to be in range (-mDimension, +mDimension).
@@ -63,14 +73,41 @@ float Terrain::getIHeightAt(int ix, int iy) const
 {
 	int index = iy * mCacheWidth + ix;
 	if(index < 0 || index >= mHeightCache.size()) {
-		return 0.0f;
+		return -1.0f;
 	}
 
 	float& cached = mHeightCache[index];
 	if(!cached) {
-		cached = mOffset + mScale * mPerlin.GetValue(ix * mDistance * 0.001f, iy * mDistance * 0.001f, 0.0f);
+		cached = mOffset + mScale * getRawTerrainHeight(ix * mDistance * 0.001f, iy * mDistance * 0.001f);
+
+#define EDGE_FALL_OFF 10
+		if(cached > 1.0) {
+			float diff = 1.0;
+			if(ix < EDGE_FALL_OFF && ix >= 0) {
+				diff = ix;
+				cached = cached * diff / float(EDGE_FALL_OFF);
+			} else if(ix >= mCacheWidth - EDGE_FALL_OFF - 1 && ix <= mCacheWidth) {
+				diff = mCacheWidth - ix + 1;
+				cached = cached * diff / float(EDGE_FALL_OFF);
+			}
+
+			if(iy < EDGE_FALL_OFF && iy >= 0) {
+				diff = iy;
+				cached = cached * diff / float(EDGE_FALL_OFF);
+			} else if(iy >= mCacheWidth - EDGE_FALL_OFF - 1 && iy <= mCacheWidth) {
+				diff = mCacheWidth - iy + 1;
+				cached = cached * diff / float(EDGE_FALL_OFF);
+			}
+			if(cached < 1.0 && cached > -1.0)
+				cached = -1.0;
+		}
 	}
 	return cached;
+}
+
+float Terrain::getRawTerrainHeight(float x, float y) const
+{
+	return mFinalTerrain.GetValue(x, y, 0.0f);
 }
 
 float Terrain::getDimension() const

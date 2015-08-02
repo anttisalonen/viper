@@ -14,6 +14,7 @@ class Terrain {
 
 	private:
 		float getIHeightAt(int ix, int iy) const;
+		float getRawTerrainHeight(float x, float y) const;
 
 		struct Modifier {
 			float x1;
@@ -29,7 +30,12 @@ class Terrain {
 				h(h_) { }
 		};
 
-		noise::module::Perlin mPerlin;
+		noise::module::Perlin mMountainTerrain;
+		noise::module::Billow mBaseFlatTerrain;
+		noise::module::ScaleBias mFlatTerrain;
+		noise::module::Perlin mTerrainType;
+		noise::module::Select mFinalTerrain;
+
 		float mScale;
 		float mOffset;
 		unsigned int mDimension;

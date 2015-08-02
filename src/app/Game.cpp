@@ -32,8 +32,8 @@ Game::Game()
 
 	mGeneralInput->setGeneral(mGenerals[0]);
 
-	mBase[0] = Vector3(dim * 0.5 - 100, 0, dim * 0.5 - 100); mBase[0].y = mTerrain->getHeightAt(mBase[0].x, mBase[0].z);
-	mBase[1] = Vector3(100 - dim * 0.5, 0, 100 - dim * 0.5); mBase[1].y = mTerrain->getHeightAt(mBase[1].x, mBase[1].z);
+	mBase[0] = Vector3(dim * 0.5 - 160, 0, dim * 0.5 - 160); mBase[0].y = mTerrain->getHeightAt(mBase[0].x, mBase[0].z);
+	mBase[1] = Vector3(160 - dim * 0.5, 0, 160 - dim * 0.5); mBase[1].y = mTerrain->getHeightAt(mBase[1].x, mBase[1].z);
 
 	mBaseLength = 300.0f;
 	mBaseWidth = 50.0f;
