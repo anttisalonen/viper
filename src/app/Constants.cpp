@@ -12,7 +12,7 @@ Constants::Constants(const char* fn)
 	if (!parsingSuccessful) {
 		// report to the user the failure and their locations in the document.
 		std::cerr << "Failed to parse constants in file " << fn << "\n";
-		throw std::runtime_error(reader.getFormatedErrorMessages());
+		throw std::runtime_error(reader.getFormattedErrorMessages());
 	}
 }
 

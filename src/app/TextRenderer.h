@@ -1,5 +1,8 @@
 #include <Ogre.h>
 #include <OgreSingleton.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreOverlayContainer.h>
  
 /* http://www.ogre3d.org/tikiwiki/tiki-index.php?page=Simple+Text+Output */
 class TextRenderer : public Ogre::Singleton<TextRenderer>

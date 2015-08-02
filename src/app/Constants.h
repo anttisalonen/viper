@@ -1,7 +1,7 @@
 #ifndef APP_CONSTANTS_H
 #define APP_CONSTANTS_H
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 #include "common/Vector3.h"
 

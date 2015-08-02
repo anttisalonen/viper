@@ -1,3 +1,4 @@
+#include <Overlay/OgreOverlaySystem.h>
 #include "UserInterface.h"
 
 #include "TextRenderer.h"
@@ -63,6 +64,8 @@ UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
 		}
 		//mWindow->setFullscreen(true, 1360, 768);
 		mSceneMgr = mRoot->createSceneManager(Ogre::ST_EXTERIOR_FAR, "SceneManager");
+		Ogre::OverlaySystem* pOverlaySystem = new Ogre::OverlaySystem();
+		mSceneMgr->addRenderQueueListener(pOverlaySystem);
 		if(mConstants.getBool("shadows")) {
 			mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE);
 		}

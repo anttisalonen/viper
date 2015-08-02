@@ -18,11 +18,11 @@ class InputHandler : public VehicleController, public OIS::KeyListener, public O
 	public:
 		InputHandler(UserInput* i, GeneralInput* gi);
 		virtual void update(float time) override;
-		bool keyPressed(const OIS::KeyEvent &arg);
-		bool keyReleased(const OIS::KeyEvent &arg);
-		bool mouseMoved(const OIS::MouseEvent& arg);
-		bool mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID button);
-		bool mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID button);
+		bool keyPressed(const OIS::KeyEvent &arg) override;
+		bool keyReleased(const OIS::KeyEvent &arg) override;
+		bool mouseMoved(const OIS::MouseEvent& arg) override;
+		bool mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID button) override;
+		bool mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID button) override;
 		ViewSetting getCurrentViewSetting() const;
 		const Common::Quaternion& getViewRotation() const;
 		bool checkVehicleChangeRequest();

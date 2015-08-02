@@ -12,7 +12,7 @@ class Game;
 class Missile : public VisibleEntity {
 	public:
 		Missile(const Vehicle* owner);
-		void update(float t);
+		void update(float t) override;
 		void shoot(Vehicle* tgt);
 		virtual const char* getType() const override;
 		void setOffset(const Common::Vector3& offset);

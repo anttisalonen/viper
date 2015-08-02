@@ -2,6 +2,9 @@
 #define APP_MOUSECURSOR_H
 
 #include <Ogre.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreOverlayContainer.h>
 
 /* http://www.ogre3d.org/tikiwiki/tiki-index.php?page=How+to+show+the+mouse+cursor+without+CEGUI */
 class MouseCursor {

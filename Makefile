@@ -1,18 +1,18 @@
 CXX      ?= g++
 AR       ?= ar
-CXXFLAGS ?= -O2 -g3 -Werror
+CXXFLAGS ?= -O2 -g3 -Werror -Wno-unused-private-field
 
-# OGRE headers generate lots of hiding overloaded virtual function warnings
-CXXFLAGS += -std=c++11 -Wall -Wno-overloaded-virtual
+# OGRE headers generate some warnings
+CXXFLAGS += -std=c++11 -Wall -Wno-overloaded-virtual -Wno-deprecated-register
 
 CXXFLAGS += -Isrc
 
-OGRE_CFLAGS ?= $(shell pkg-config --cflags OGRE)
+OGRE_CFLAGS ?= $(shell pkg-config --cflags OGRE OGRE-Overlay)
 OGRE_PLUGIN_DIR ?= $(shell pkg-config --variable=plugindir OGRE)
 CXXFLAGS += $(OGRE_CFLAGS) -DOGRE_PLUGIN_DIR="\"$(OGRE_PLUGIN_DIR)\""
 CXXFLAGS += $(shell pkg-config --cflags OIS)
 
-OGRE_LDFLAGS ?= $(shell pkg-config --libs OGRE)
+OGRE_LDFLAGS ?= $(shell pkg-config --libs OGRE OGRE-Overlay)
 LDFLAGS  += $(OGRE_LDFLAGS)
 LDFLAGS  += $(shell pkg-config --libs OIS)
 LDFLAGS  += -lboost_system
