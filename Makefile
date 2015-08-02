@@ -1,9 +1,9 @@
 CXX      ?= g++
 AR       ?= ar
-CXXFLAGS ?= -O2 -g3 -Werror -Wno-unused-private-field
+CXXFLAGS ?= -O2 -g3 -Wall -Werror -Wno-unused-private-field
 
 # OGRE headers generate some warnings
-CXXFLAGS += -std=c++11 -Wall -Wno-overloaded-virtual -Wno-deprecated-register
+CXXFLAGS += -std=c++11 -Wno-overloaded-virtual -Wno-deprecated-register
 
 CXXFLAGS += -Isrc
 
