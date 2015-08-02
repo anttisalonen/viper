@@ -21,7 +21,10 @@ void GeneralInput::setGeneral(General* g)
 void GeneralInput::update(float time)
 {
 	if(time) {
-		mCamPos = mCamPos + mCamVelocity * time * 1000.0f;
+		auto yvel = Common::Vector3(0.0, mCamVelocity.y, 0.0) * time * 1000.0f;
+		auto vel = mCamRot.multiply(mCamVelocity) * time * 1000.0f;
+		vel.y = 0.0;
+		mCamPos = mCamPos + vel + yvel;
 		mCamPos.y = Common::clamp(10.0f, mCamPos.y, 2500.0f);
 
 		auto q1 = Common::Quaternion::fromAxisAngle(Common::Vector3(1, 0, 0), mRotY * time);

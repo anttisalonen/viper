@@ -339,7 +339,7 @@ Vehicle* Game::selectVehicleAt(float x, float y, int side)
 {
 	Common::Vector3 origin, dir;
 	mUserInterface->raycast(x, y, origin, dir);
-	auto v = Vehicle::pickVehicle(mVehicles, nullptr, origin, origin + dir * 100.0f, 5.0f);
+	auto v = Vehicle::pickVehicle(mVehicles, nullptr, origin, origin + dir * 1000.0f, 5.0f);
 	if(v && v->getSide() == side)
 		return v;
 	return nullptr;
