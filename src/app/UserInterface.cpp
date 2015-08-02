@@ -55,9 +55,7 @@ UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
 		params["FSAA"] = "0";
 		params["vsync"] = "true";
 		params["border"] = "fixed";
-		mWindowWidth = 1280;
-		mWindowHeight = 720;
-		mWindow = mRoot->createRenderWindow("Render Window", mWindowWidth, mWindowHeight, false, &params);
+		mWindow = mRoot->createRenderWindow("Render Window", 1280, 720, false, &params);
 		if(!mWindow) {
 			delete mRoot;
 			throw std::runtime_error("Could not create the render window.\n");
@@ -87,7 +85,6 @@ UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
 		initInput(ih);
 
 		setupScene();
-		checkWindowResize();
 
 		new TextRenderer();
 		TextRenderer::getSingleton().addTextBox("position", "Position: ", 10, 10, 100, 20, Ogre::ColourValue::White);
@@ -95,7 +92,8 @@ UserInterface::UserInterface(InputHandler* ih, const Terrain* t)
 		mMouseCursor = new MouseCursor();
 		mMouseCursor->setImage("cursor.png");
 		mMouseCursor->setVisible(false);
-		mMouseCursor->setWindowDimensions(mWindowWidth, mWindowHeight);
+
+		checkWindowResize();
 	}
 }
 
